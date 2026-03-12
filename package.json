@@ -15,6 +15,7 @@
     "reset:admin": "tsx scripts/reset-admin.ts"
   },
   "dependencies": {
+    "@payloadcms/db-postgres": "^3.0.0",
     "@payloadcms/db-sqlite": "^3.0.0",
     "@payloadcms/next": "^3.0.0",
     "@payloadcms/richtext-lexical": "^3.0.0",
