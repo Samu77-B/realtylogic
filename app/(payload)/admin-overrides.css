@@ -1,0 +1,12 @@
+/* Custom admin panel overrides - form labels in dark grey */
+
+label.field-label,
+.field-type .field-label {
+  color: #2a2a2a !important;
+}
+
+/* Dark mode - dark grey labels */
+[data-theme='dark'] label.field-label,
+[data-theme='dark'] .field-type .field-label {
+  color: #9ca3af !important;
+}
