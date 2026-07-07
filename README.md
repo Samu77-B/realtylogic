@@ -12,16 +12,18 @@ npm install --legacy-peer-deps
 
 2. Copy `.env.example` to `.env` and set:
 
-- `DATABASE_URI` – SQLite file path (default: `file:./payload.db`)
+- `DATABASE_URI` – Supabase Postgres connection string (use the **Transaction pooler** URI from Supabase → Project Settings → Database)
 - `PAYLOAD_SECRET` – A secure random string for production
 
-3. Start the development server:
+3. Initialize the database tables (run once after setting `.env`):
 
 ```bash
 npm run dev
 ```
 
-4. Create your first admin user at [http://localhost:3000/admin](http://localhost:3000/admin) (run dev server first so the database is created)
+Visit `http://localhost:3000/admin` once so Payload can create the database schema in Supabase.
+
+4. Create your first admin user at [http://localhost:3000/admin](http://localhost:3000/admin)
 
 5. Import CSV data (run after creating admin user):
 

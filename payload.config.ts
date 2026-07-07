@@ -36,6 +36,11 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URI,
+      // Required for Supabase Postgres connections from serverless hosts like Vercel.
+      ssl: process.env.DATABASE_URI?.includes('supabase')
+        ? { rejectUnauthorized: false }
+        : undefined,
+      max: 1,
     },
   }),
   sharp,
