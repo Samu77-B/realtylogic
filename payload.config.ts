@@ -50,6 +50,8 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI,
       ssl: getPostgresSsl(process.env.DATABASE_URI),
       max: 1,
+      connectionTimeoutMillis: 15000,
+      idleTimeoutMillis: 10000,
     },
     push: false,
   }),
