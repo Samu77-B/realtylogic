@@ -49,11 +49,11 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI,
       ssl: getPostgresSsl(process.env.DATABASE_URI),
-      max: 1,
-      connectionTimeoutMillis: 15000,
-      idleTimeoutMillis: 10000,
+      max: 5,
+      connectionTimeoutMillis: 30000,
+      idleTimeoutMillis: 20000,
     },
-    push: false,
+    push: process.env.PAYLOAD_DB_PUSH === 'true',
   }),
   plugins: [
     vercelBlobStorage({

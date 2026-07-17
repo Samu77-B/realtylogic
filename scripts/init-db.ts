@@ -7,6 +7,8 @@
 
 import './load-env-first'
 
+process.env.PAYLOAD_DB_PUSH = 'true'
+
 function assertDatabaseUri() {
   const uri = process.env.DATABASE_URI
 

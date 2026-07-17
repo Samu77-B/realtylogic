@@ -8,18 +8,17 @@ import { Hero } from '@/components/Hero'
 export default async function HomePage() {
   const payload = await getPayloadClient()
 
-  const [rentalsResult, salesResult] = await Promise.all([
-    payload.find({
-      collection: 'properties-rent',
-      where: { featuredOnFrontPage: { equals: true } },
-      limit: 6,
-    }),
-    payload.find({
-      collection: 'properties-sale',
-      where: { featured: { equals: true } },
-      limit: 6,
-    }),
-  ])
+  const rentalsResult = await payload.find({
+    collection: 'properties-rent',
+    where: { featuredOnFrontPage: { equals: true } },
+    limit: 6,
+  })
+
+  const salesResult = await payload.find({
+    collection: 'properties-sale',
+    where: { featured: { equals: true } },
+    limit: 6,
+  })
 
   const rentals = rentalsResult.docs
   const sales = salesResult.docs
