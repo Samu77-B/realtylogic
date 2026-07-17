@@ -5,7 +5,9 @@ export const Media: CollectionConfig = {
   access: {
     read: () => true,
   },
-  upload: true,
+  upload: {
+    mimeTypes: ['image/*'],
+  },
   fields: [
     {
       name: 'alt',

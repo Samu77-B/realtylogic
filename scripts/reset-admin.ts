@@ -1,13 +1,16 @@
-#!/usr/bin/env npx tsx
 /**
  * Reset admin login: deletes all users so you can create a fresh account at /admin.
  * Run: npm run reset:admin
  */
 
-import { getPayload } from 'payload'
-import config from '../payload.config'
+import './load-env-first'
 
 async function main() {
+  const [{ getPayload }, { default: config }] = await Promise.all([
+    import('payload'),
+    import('../payload.config'),
+  ])
+
   const payload = await getPayload({ config })
 
   const { docs: users } = await payload.find({

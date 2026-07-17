@@ -1,14 +1,12 @@
-#!/usr/bin/env npx tsx
 /**
  * Import CSV data into Payload CMS.
  * Uses lorem ipsum for text and placeholder images.
  */
 
+import './load-env-first'
 import { parse } from 'csv-parse'
 import { createReadStream } from 'fs'
 import { join } from 'path'
-import { getPayload } from 'payload'
-import config from '../payload.config'
 
 const LOREM =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
@@ -20,6 +18,11 @@ function placeholderImage(width: number, height: number, text: string): string {
 }
 
 async function main() {
+  const [{ getPayload }, { default: config }] = await Promise.all([
+    import('payload'),
+    import('../payload.config'),
+  ])
+
   const payload = await getPayload({ config })
 
   // 1. Import Agents
