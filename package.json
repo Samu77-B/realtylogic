@@ -15,7 +15,8 @@
     "init:db": "tsx scripts/init-db.ts",
     "reset:admin": "tsx scripts/reset-admin.ts",
     "import:rentals": "tsx scripts/import-rentals-direct.ts",
-    "import:sales": "tsx scripts/import-sales-direct.ts"
+    "import:sales": "tsx scripts/import-sales-direct.ts",
+    "create:admin": "tsx scripts/create-admin.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.79.0",
