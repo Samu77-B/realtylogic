@@ -18,6 +18,11 @@ const nextConfig = {
       },
     ],
   },
+  // Ensure watermark logo is available to API routes on Vercel (serverless FS)
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./lib/media/assets/**/*', './public/Imgs/rl-house-watermark.png'],
+    '/*': ['./lib/media/assets/**/*', './public/Imgs/rl-house-watermark.png'],
+  },
 }
 
 export default withPayload(nextConfig)

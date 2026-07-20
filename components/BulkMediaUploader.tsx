@@ -2,36 +2,67 @@
 
 import { useCallback, useRef, useState } from 'react'
 
-type UploadedItem = {
-  id: string | number
-  url: string | null
-  alt?: string | null
-  name: string
-}
-
 type QueueItem = {
   id: string
   file: File
   status: 'pending' | 'uploading' | 'done' | 'error'
   error?: string
-  result?: UploadedItem
+  previewUrl?: string
+  resultUrl?: string | null
+}
+
+/** Compress/resize in the browser before upload to stay under serverless limits. */
+async function prepareImageFile(file: File): Promise<File> {
+  if (!file.type.startsWith('image/')) return file
+
+  try {
+    const bitmap = await createImageBitmap(file)
+    const maxEdge = 1800
+    const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height))
+    const w = Math.max(1, Math.round(bitmap.width * scale))
+    const h = Math.max(1, Math.round(bitmap.height * scale))
+
+    const canvas = document.createElement('canvas')
+    canvas.width = w
+    canvas.height = h
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return file
+    ctx.drawImage(bitmap, 0, 0, w, h)
+    bitmap.close()
+
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85),
+    )
+    if (!blob) return file
+
+    const name = file.name.replace(/\.[^.]+$/, '') + '.jpg'
+    return new File([blob], name, { type: 'image/jpeg' })
+  } catch {
+    return file
+  }
 }
 
 export function BulkMediaUploader() {
   const [queue, setQueue] = useState<QueueItem[]>([])
   const [dragging, setDragging] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [banner, setBanner] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const addFiles = useCallback((files: FileList | File[]) => {
     const images = Array.from(files).filter((f) => f.type.startsWith('image/'))
-    if (images.length === 0) return
+    if (images.length === 0) {
+      setBanner('Please choose image files (JPG, PNG, WebP, etc.).')
+      return
+    }
+    setBanner(null)
     setQueue((prev) => [
       ...prev,
       ...images.map((file) => ({
         id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
         file,
         status: 'pending' as const,
+        previewUrl: URL.createObjectURL(file),
       })),
     ])
   }, [])
@@ -45,35 +76,42 @@ export function BulkMediaUploader() {
   const uploadAll = async () => {
     if (busy) return
     setBusy(true)
+    setBanner(null)
 
     const pending = queue.filter((q) => q.status === 'pending' || q.status === 'error')
+    let failures = 0
+
     for (const item of pending) {
       setQueue((prev) =>
         prev.map((q) => (q.id === item.id ? { ...q, status: 'uploading', error: undefined } : q)),
       )
 
       try {
+        const prepared = await prepareImageFile(item.file)
         const form = new FormData()
-        form.append('file', item.file)
+        form.append('file', prepared)
         const res = await fetch('/api/media/upload-one', {
           method: 'POST',
           body: form,
+          credentials: 'same-origin',
         })
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error || 'Upload failed')
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          if (res.status === 401) {
+            throw new Error('Not logged in — open /admin, sign in, then return here.')
+          }
+          throw new Error(data.error || `Upload failed (${res.status})`)
+        }
 
         setQueue((prev) =>
           prev.map((q) =>
             q.id === item.id
-              ? {
-                  ...q,
-                  status: 'done',
-                  result: { id: data.id, url: data.url, alt: data.alt, name: item.file.name },
-                }
+              ? { ...q, status: 'done', resultUrl: data.url ?? null }
               : q,
           ),
         )
       } catch (err) {
+        failures += 1
         setQueue((prev) =>
           prev.map((q) =>
             q.id === item.id
@@ -89,12 +127,18 @@ export function BulkMediaUploader() {
     }
 
     setBusy(false)
+    if (failures > 0) {
+      setBanner(`${failures} image(s) failed. Fix the errors below and try again.`)
+    } else if (pending.length > 0) {
+      setBanner('Upload complete. Attach these from Media when editing a property.')
+    }
   }
 
   const clearDone = () => setQueue((prev) => prev.filter((q) => q.status !== 'done'))
   const clearAll = () => {
     if (busy) return
     setQueue([])
+    setBanner(null)
   }
 
   const doneCount = queue.filter((q) => q.status === 'done').length
@@ -106,8 +150,11 @@ export function BulkMediaUploader() {
         Bulk photo upload
       </h1>
       <p className="mt-2 text-gray-600">
-        Drag and drop up to 20+ property photos at once. Each image is watermarked with Realty Logic
-        automatically, then saved to Media for use on listings.
+        Drag and drop many photos at once. Each image is compressed, watermarked with the Realty
+        Logic house logo, and saved to Media.
+      </p>
+      <p className="mt-1 text-sm text-gray-500">
+        You must be logged in at <a className="underline" href="/admin">/admin</a> first.
       </p>
 
       <div
@@ -128,7 +175,7 @@ export function BulkMediaUploader() {
         }}
       >
         <p className="text-lg text-gray-800">Drop images here</p>
-        <p className="mt-1 text-sm text-gray-500">or click to choose multiple files from your computer</p>
+        <p className="mt-1 text-sm text-gray-500">or click to choose multiple files</p>
         <input
           ref={inputRef}
           type="file"
@@ -141,6 +188,12 @@ export function BulkMediaUploader() {
           }}
         />
       </div>
+
+      {banner && (
+        <p className="mt-4 rounded border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">
+          {banner}
+        </p>
+      )}
 
       {queue.length > 0 && (
         <div className="mt-6">
@@ -177,33 +230,18 @@ export function BulkMediaUploader() {
           <ul className="mt-4 divide-y divide-gray-200 rounded border border-gray-200 bg-white">
             {queue.map((item) => (
               <li key={item.id} className="flex items-center gap-3 px-3 py-2 text-sm">
-                <span
-                  className={`h-2 w-2 shrink-0 rounded-full ${
-                    item.status === 'done'
-                      ? 'bg-green-500'
-                      : item.status === 'error'
-                        ? 'bg-red-500'
-                        : item.status === 'uploading'
-                          ? 'bg-amber-400'
-                          : 'bg-gray-300'
-                  }`}
-                />
-                <span className="min-w-0 flex-1 truncate text-gray-800">{item.file.name}</span>
-                <span className="shrink-0 text-gray-500">
-                  {(item.file.size / 1024 / 1024).toFixed(1)}MB
-                </span>
-                {item.error && <span className="max-w-[40%] truncate text-red-600">{item.error}</span>}
-                {item.result?.url && (
+                {item.previewUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.result.url} alt="" className="h-10 w-10 rounded object-cover" />
+                  <img src={item.resultUrl || item.previewUrl} alt="" className="h-10 w-10 rounded object-cover" />
+                ) : (
+                  <span className="h-10 w-10 rounded bg-gray-100" />
                 )}
+                <span className="min-w-0 flex-1 truncate text-gray-800">{item.file.name}</span>
+                <span className="shrink-0 capitalize text-gray-500">{item.status}</span>
+                {item.error && <span className="max-w-[45%] truncate text-red-600">{item.error}</span>}
               </li>
             ))}
           </ul>
-
-          <p className="mt-3 text-sm text-gray-500">
-            After upload, open a property in admin and attach photos from Media (Main Image / Gallery).
-          </p>
         </div>
       )}
     </div>

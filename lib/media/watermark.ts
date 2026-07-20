@@ -1,67 +1,106 @@
 import { readFileSync, existsSync } from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
+const moduleDir = path.dirname(fileURLToPath(import.meta.url))
+
 const LOGO_CANDIDATES = [
-  'public/Imgs/67ec7d39feaa27e0478ccaf2_RealtyLogic_Logo.png',
-  'public/Imgs/RealtyLogic_Logo.png',
+  // Bundled with the API (survives Vercel serverless file tracing)
+  path.join(moduleDir, 'assets/rl-house-watermark.png'),
+  path.join(process.cwd(), 'lib/media/assets/rl-house-watermark.png'),
+  path.join(process.cwd(), 'public/Imgs/rl-house-watermark.png'),
+  path.join(process.cwd(), 'public/Imgs/RLHouse.png'),
 ]
 
-function getLogoBuffer(): Buffer | null {
-  for (const rel of LOGO_CANDIDATES) {
-    const full = path.join(process.cwd(), rel)
-    if (existsSync(full)) return readFileSync(full)
+function getLogoBufferFromDisk(): Buffer | null {
+  for (const full of LOGO_CANDIDATES) {
+    try {
+      if (existsSync(full)) return readFileSync(full)
+    } catch {
+      // try next path
+    }
   }
   return null
 }
 
+async function getLogoBuffer(): Promise<Buffer | null> {
+  const fromDisk = getLogoBufferFromDisk()
+  if (fromDisk) return fromDisk
+
+  // Fallback: fetch from the live site's public URL (works when FS path is missing in serverless)
+  const host =
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : '') ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+
+  if (!host) return null
+
+  try {
+    const res = await fetch(`${host.replace(/\/$/, '')}/Imgs/rl-house-watermark.png`)
+    if (!res.ok) return null
+    return Buffer.from(await res.arrayBuffer())
+  } catch {
+    return null
+  }
+}
+
+/** Turn near-black background into transparency so the orange house sits cleanly on photos. */
+async function logoWithTransparency(logoBuf: Buffer, targetW: number): Promise<Buffer> {
+  const { data, info } = await sharp(logoBuf)
+    .ensureAlpha()
+    .resize({ width: targetW, withoutEnlargement: true })
+    .raw()
+    .toBuffer({ resolveWithObject: true })
+
+  const pixels = Buffer.from(data)
+  for (let i = 0; i < pixels.length; i += 4) {
+    const r = pixels[i]
+    const g = pixels[i + 1]
+    const b = pixels[i + 2]
+    // Black / very dark background → transparent
+    if (r < 40 && g < 40 && b < 40) {
+      pixels[i + 3] = 0
+    } else {
+      // Slight overall transparency so it reads as a watermark
+      pixels[i + 3] = Math.round(pixels[i + 3] * 0.82)
+    }
+  }
+
+  return sharp(pixels, {
+    raw: { width: info.width, height: info.height, channels: 4 },
+  })
+    .png()
+    .toBuffer()
+}
+
 /**
- * Applies a Realty Logic watermark (logo bottom-right, or text fallback).
+ * Applies the Realty Logic house watermark (bottom-right).
  */
 export async function applyRealtyLogicWatermark(input: Buffer): Promise<Buffer> {
-  const image = sharp(input, { failOn: 'none' })
+  const image = sharp(input, { failOn: 'none' }).rotate() // honour EXIF orientation
   const meta = await image.metadata()
   const width = meta.width || 1200
   const height = meta.height || 800
 
-  const logoBuf = getLogoBuffer()
+  const logoBuf = await getLogoBuffer()
 
   if (logoBuf) {
-    const targetW = Math.max(96, Math.round(width * 0.18))
-    const watermark = await sharp(logoBuf)
-      .resize({ width: targetW, withoutEnlargement: true })
-      .ensureAlpha()
-      .png()
-      .toBuffer()
-
+    const targetW = Math.max(110, Math.round(width * 0.16))
+    const watermark = await logoWithTransparency(logoBuf, targetW)
     const wmMeta = await sharp(watermark).metadata()
     const wmW = wmMeta.width || targetW
-    const wmH = wmMeta.height || Math.round(targetW / 2)
-    const margin = Math.max(12, Math.round(width * 0.02))
-
-    // Soft white plate behind logo for contrast on dark/light photos
-    const plate = await sharp({
-      create: {
-        width: wmW + margin,
-        height: wmH + margin,
-        channels: 4,
-        background: { r: 255, g: 255, b: 255, alpha: 0.45 },
-      },
-    })
-      .png()
-      .toBuffer()
+    const wmH = wmMeta.height || targetW
+    const margin = Math.max(16, Math.round(width * 0.025))
 
     return image
       .composite([
         {
-          input: plate,
-          left: width - wmW - margin * 2,
-          top: height - wmH - margin * 2,
-        },
-        {
           input: watermark,
-          left: width - wmW - Math.round(margin * 1.5),
-          top: height - wmH - Math.round(margin * 1.5),
+          left: Math.max(0, width - wmW - margin),
+          top: Math.max(0, height - wmH - margin),
           blend: 'over',
         },
       ])
@@ -69,16 +108,13 @@ export async function applyRealtyLogicWatermark(input: Buffer): Promise<Buffer> 
       .toBuffer()
   }
 
-  // Text fallback if logo asset is missing
+  // Text fallback if logo asset is missing at runtime
   const fontSize = Math.max(18, Math.round(width * 0.028))
   const svg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .wm { fill: rgba(255,255,255,0.85); font-family: Arial, Helvetica, sans-serif; font-size: ${fontSize}px; font-weight: 600; }
-        .shadow { fill: rgba(0,0,0,0.35); }
-      </style>
-      <text x="${width - 24}" y="${height - 24}" text-anchor="end" class="shadow">Realty Logic</text>
-      <text x="${width - 26}" y="${height - 26}" text-anchor="end" class="wm">Realty Logic</text>
+      <text x="${width - 28}" y="${height - 28}" text-anchor="end"
+        fill="rgba(240,91,44,0.9)" font-family="Arial, Helvetica, sans-serif"
+        font-size="${fontSize}px" font-weight="700">Realty Logic</text>
     </svg>
   `
 

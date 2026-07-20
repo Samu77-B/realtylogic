@@ -8,6 +8,7 @@ import { PropertyVideo } from '@/components/PropertyVideo'
 import { ArrangeViewingForm } from '@/components/ArrangeViewingForm'
 import { ShareSection } from '@/components/ShareSection'
 import { PropertyMap } from '@/components/PropertyMap'
+import { WeChatContactCard } from '@/components/WeChatContactCard'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -252,12 +253,13 @@ export default async function PropertySalePage({ params }: Props) {
 
           {/* Sidebar - Arrange viewing */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24">
+            <div className="sticky top-24 space-y-4">
               <ArrangeViewingForm
                 propertyTitle={property.title}
                 propertySlug={property.slug}
                 isRental={false}
               />
+              <WeChatContactCard />
             </div>
           </div>
         </div>
