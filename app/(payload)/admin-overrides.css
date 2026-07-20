@@ -19,29 +19,47 @@
   color: #e0e0e0 !important;
 }
 
-/* Form labels — dark on light, light on dark */
-label,
+/* Form labels inside the main admin app */
 label.field-label,
 .field-type .field-label,
 .field-label {
   color: #1a1a1a !important;
 }
 
-[data-theme='dark'] label,
-[data-theme='dark'] label.field-label,
-[data-theme='dark'] .field-type .field-label,
-[data-theme='dark'] .field-label {
+[data-theme='dark'] .template-default label.field-label,
+[data-theme='dark'] .template-default .field-type .field-label,
+[data-theme='dark'] .template-default .field-label {
   color: #e0e0e0 !important;
 }
 
-/* Login page — readable labels + usable input fields on white */
+/*
+ * Login page: Payload often keeps data-theme="dark" even on the white login card.
+ * Dark-theme label colours (#e0e0e0) become invisible on white — force near-black.
+ */
 .login label,
+.login label *,
 .login .field-label,
+.login .field-label *,
+.login .required,
 .login a,
 .template-minimal label,
+.template-minimal label *,
 .template-minimal .field-label,
-.template-minimal a {
-  color: #1a1a1a !important;
+.template-minimal .field-label *,
+.template-minimal a,
+[data-theme='dark'] .login label,
+[data-theme='dark'] .login label *,
+[data-theme='dark'] .login .field-label,
+[data-theme='dark'] .login .field-label *,
+[data-theme='dark'] .login .required,
+[data-theme='dark'] .login a,
+[data-theme='dark'] .template-minimal label,
+[data-theme='dark'] .template-minimal label *,
+[data-theme='dark'] .template-minimal .field-label,
+[data-theme='dark'] .template-minimal .field-label *,
+[data-theme='dark'] .template-minimal a {
+  color: #111111 !important;
+  opacity: 1 !important;
 }
 
 .login input,
@@ -49,14 +67,30 @@ label.field-label,
 .login select,
 .template-minimal input,
 .template-minimal textarea,
-.template-minimal select {
+.template-minimal select,
+[data-theme='dark'] .login input,
+[data-theme='dark'] .login textarea,
+[data-theme='dark'] .login select,
+[data-theme='dark'] .template-minimal input,
+[data-theme='dark'] .template-minimal textarea,
+[data-theme='dark'] .template-minimal select {
   background-color: #ffffff !important;
-  color: #1a1a1a !important;
-  border: 1px solid #c4c4c4 !important;
-  caret-color: #1a1a1a !important;
+  color: #111111 !important;
+  border: 1px solid #9ca3af !important;
+  caret-color: #111111 !important;
+  opacity: 1 !important;
 }
 
 .login input::placeholder,
 .template-minimal input::placeholder {
-  color: #6b7280 !important;
+  color: #4b5563 !important;
+  opacity: 1 !important;
+}
+
+.login .btn,
+.login button[type='submit'],
+.template-minimal .btn,
+.template-minimal button[type='submit'] {
+  color: #111111 !important;
+  font-weight: 600 !important;
 }
