@@ -1,13 +1,7 @@
-/* Admin text contrast */
+/* Admin panel contrast fixes — do NOT override elevation CSS variables
+   (that breaks Payload input/background colours). */
 
-/* Dark theme — light text on dark backgrounds */
-[data-theme='dark'] {
-  --theme-text: #e0e0e0;
-  --theme-elevation-800: #e0e0e0;
-  --theme-elevation-900: #e0e0e0;
-  --theme-elevation-1000: #e0e0e0;
-}
-
+/* Collection / dashboard titles on dark theme */
 [data-theme='dark'] h1,
 [data-theme='dark'] h2,
 [data-theme='dark'] h3,
@@ -19,27 +13,20 @@
 [data-theme='dark'] .nav-group__label,
 [data-theme='dark'] .nav-group__toggle,
 [data-theme='dark'] .nav .nav__link,
-[data-theme='dark'] .template-default__wrap,
 [data-theme='dark'] .list-header,
-[data-theme='dark'] .collection-list,
 [data-theme='dark'] .render-title,
-[data-theme='dark'] .doc-header__title,
-[data-theme='dark'] .step-nav,
-[data-theme='dark'] .step-nav * {
+[data-theme='dark'] .doc-header__title {
   color: #e0e0e0 !important;
 }
 
-/* Light theme / login — dark labels so they are readable on white */
+/* Form labels — dark on light, light on dark */
 label,
 label.field-label,
 .field-type .field-label,
-.field-label,
-.form-submit .btn,
-a[href*='forgot'] {
+.field-label {
   color: #1a1a1a !important;
 }
 
-/* Keep dark-theme labels light after the general label rule */
 [data-theme='dark'] label,
 [data-theme='dark'] label.field-label,
 [data-theme='dark'] .field-type .field-label,
@@ -47,7 +34,7 @@ a[href*='forgot'] {
   color: #e0e0e0 !important;
 }
 
-/* Login page is often light even when admin prefers dark — force readable labels */
+/* Login page — readable labels + usable input fields on white */
 .login label,
 .login .field-label,
 .login a,
@@ -55,4 +42,21 @@ a[href*='forgot'] {
 .template-minimal .field-label,
 .template-minimal a {
   color: #1a1a1a !important;
+}
+
+.login input,
+.login textarea,
+.login select,
+.template-minimal input,
+.template-minimal textarea,
+.template-minimal select {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border: 1px solid #c4c4c4 !important;
+  caret-color: #1a1a1a !important;
+}
+
+.login input::placeholder,
+.template-minimal input::placeholder {
+  color: #6b7280 !important;
 }
