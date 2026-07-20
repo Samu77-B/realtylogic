@@ -57,13 +57,21 @@ export default buildConfig({
   }),
   plugins: [
     vercelBlobStorage({
+      // Required on Vercel — without this token, uploads cannot persist on serverless
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
       collections: {
         media: true,
       },
       token: process.env.BLOB_READ_WRITE_TOKEN,
+      // Client uploads bypass Vercel’s ~4.5MB serverless body limit
       clientUploads: true,
     }),
   ],
   sharp,
 })
+
+if (process.env.NODE_ENV === 'production' && !process.env.BLOB_READ_WRITE_TOKEN) {
+  console.warn(
+    '[payload] BLOB_READ_WRITE_TOKEN is missing. Media uploads will fail on Vercel until Blob storage is added to the project.',
+  )
+}

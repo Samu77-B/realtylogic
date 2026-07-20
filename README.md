@@ -55,7 +55,9 @@ Set these environment variables in the Vercel project (**Settings → Environmen
 | `PAYLOAD_SECRET` | Same secret as local `.env` |
 | `BLOB_READ_WRITE_TOKEN` | From Vercel **Storage → Blob** after adding Blob to the project |
 
-**Photo uploads on Vercel:** Add **Blob storage** to the Vercel project. Vercel sets `BLOB_READ_WRITE_TOKEN` automatically. Payload uses `@payloadcms/storage-vercel-blob` with client-side uploads for files up to 30MB.
+**Photo uploads on Vercel:** Add **Blob storage** to the Vercel project (**Storage → Create → Blob**). Vercel sets `BLOB_READ_WRITE_TOKEN` automatically. Without this token, image uploads fail on production (serverless has no persistent disk). Payload uses `@payloadcms/storage-vercel-blob` with client-side uploads for files up to 30MB.
+
+After adding Blob, redeploy the project, then upload again in **Admin → Media** (or on a property’s Main Image field).
 
 After changing env vars, redeploy the project. The homepage and `/admin` should load without database errors once `DATABASE_URI` points at an active Neon database.
 
