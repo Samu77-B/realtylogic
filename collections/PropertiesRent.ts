@@ -111,12 +111,20 @@ export const PropertiesRent: CollectionConfig = {
     {
       name: 'images',
       type: 'array',
+      labels: {
+        singular: 'Image',
+        plural: 'Gallery Images',
+      },
+      admin: {
+        description: 'Add rows only after each photo is uploaded. Empty rows block Save.',
+      },
       fields: [
         {
           name: 'image',
           type: 'upload',
           relationTo: 'media',
-          required: true,
+          // Soft requirement — empty gallery rows were causing Save to fail with a generic error
+          required: false,
         },
       ],
     },
