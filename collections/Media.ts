@@ -9,7 +9,7 @@ export const Media: CollectionConfig = {
     delete: ({ req }) => Boolean(req.user),
   },
   upload: {
-    mimeTypes: ['image/*'],
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'],
   },
   hooks: {
     beforeValidate: [
@@ -30,10 +30,11 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      required: true,
+      // Not required in admin — empty Alt was blocking Save with a generic error
+      required: false,
       defaultValue: 'Property image',
       admin: {
-        description: 'Short description of the image (auto-filled if left blank)',
+        description: 'Short description of the image (auto-filled from filename if blank)',
       },
     },
   ],

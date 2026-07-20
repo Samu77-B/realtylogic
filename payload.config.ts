@@ -57,14 +57,19 @@ export default buildConfig({
   }),
   plugins: [
     vercelBlobStorage({
-      // Required on Vercel — without this token, uploads cannot persist on serverless
+      // Without this token on Vercel, uploads cannot persist (no local disk)
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
       collections: {
-        media: true,
+        // Recommended for client uploads — serves files from Blob URLs directly
+        media: {
+          disablePayloadAccessControl: true,
+        },
       },
       token: process.env.BLOB_READ_WRITE_TOKEN,
-      // Client uploads bypass Vercel’s ~4.5MB serverless body limit
+      // Bypass Vercel ~4.5MB serverless body limit
       clientUploads: true,
+      // Avoid "blob already exists" after a failed/retry upload of the same file
+      addRandomSuffix: true,
     }),
   ],
   sharp,
