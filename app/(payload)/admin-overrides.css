@@ -1,5 +1,6 @@
-/* Admin text contrast — light grey on dark theme */
+/* Admin text contrast */
 
+/* Dark theme — light text on dark backgrounds */
 [data-theme='dark'] {
   --theme-text: #e0e0e0;
   --theme-elevation-800: #e0e0e0;
@@ -28,13 +29,30 @@
   color: #e0e0e0 !important;
 }
 
-/* Form labels */
+/* Light theme / login — dark labels so they are readable on white */
+label,
 label.field-label,
-.field-type .field-label {
-  color: #2a2a2a !important;
+.field-type .field-label,
+.field-label,
+.form-submit .btn,
+a[href*='forgot'] {
+  color: #1a1a1a !important;
 }
 
+/* Keep dark-theme labels light after the general label rule */
+[data-theme='dark'] label,
 [data-theme='dark'] label.field-label,
-[data-theme='dark'] .field-type .field-label {
+[data-theme='dark'] .field-type .field-label,
+[data-theme='dark'] .field-label {
   color: #e0e0e0 !important;
+}
+
+/* Login page is often light even when admin prefers dark — force readable labels */
+.login label,
+.login .field-label,
+.login a,
+.template-minimal label,
+.template-minimal .field-label,
+.template-minimal a {
+  color: #1a1a1a !important;
 }
