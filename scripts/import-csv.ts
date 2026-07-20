@@ -96,10 +96,10 @@ async function main() {
     console.log('Agents CSV not found — skipping agents')
   }
 
-  const agentSlugToId = new Map<string, number | string>()
+  const agentSlugToId = new Map<string, number>()
   const { docs: agentDocs } = await payload.find({ collection: 'agents', limit: 100 })
   for (const a of agentDocs) {
-    agentSlugToId.set(a.slug, a.id as number)
+    if (typeof a.id === 'number') agentSlugToId.set(a.slug, a.id)
   }
 
   // 2. Import Properties for Sale (optional — skip if CSV missing)
@@ -208,7 +208,7 @@ async function main() {
           studentsAllowed: parseBool(row['Student Friendly']),
           petsAllowed: parseBool(row['Pets Allowed']),
           smokersAllowed: parseBool(row['Smokers Allowed']),
-          ...(agentId ? { agent: agentId } : {}),
+          ...(agentId && typeof agentId === 'number' ? { agent: agentId } : {}),
         },
       })
       created++

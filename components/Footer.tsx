@@ -71,9 +71,14 @@ export function Footer() {
           </a>
         </p>
         <p className="mt-1 text-center">
-          <Link href="/admin" className="text-xs text-gray-600 opacity-50 hover:opacity-70 hover:text-gray-500 transition-opacity">
-            Admin
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/manager/realty-ai" className="text-xs text-gray-600 opacity-50 hover:opacity-70 hover:text-gray-500 transition-opacity">
+              Realty AI
+            </Link>
+            <Link href="/admin" className="text-xs text-gray-600 opacity-50 hover:opacity-70 hover:text-gray-500 transition-opacity">
+              Admin
+            </Link>
+          </div>
         </p>
       </div>
     </footer>

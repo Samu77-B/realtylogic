@@ -59,6 +59,17 @@ Set these environment variables in the Vercel project (**Settings → Environmen
 
 After changing env vars, redeploy the project. The homepage and `/admin` should load without database errors once `DATABASE_URI` points at an active Neon database.
 
+## Realty AI (manager assistant)
+
+Managers can open `/manager/realty-ai` after logging in at `/admin`.
+
+- Speak or type property details
+- Review the live draft panel
+- Say **Publish** (or press the button) to create the listing
+- Add photos afterwards in Payload admin
+
+Requires Vercel AI Gateway (OIDC on Vercel, or `AI_GATEWAY_API_KEY` locally). See `.env.example`.
+
 ## Scripts
 
 - `npm run dev` – Start development server
