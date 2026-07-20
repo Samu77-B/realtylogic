@@ -1,12 +1,40 @@
-/* Custom admin panel overrides - form labels in dark grey */
+/* Admin text contrast — light grey on dark theme */
 
+[data-theme='dark'] {
+  --theme-text: #e0e0e0;
+  --theme-elevation-800: #e0e0e0;
+  --theme-elevation-900: #e0e0e0;
+  --theme-elevation-1000: #e0e0e0;
+}
+
+[data-theme='dark'] h1,
+[data-theme='dark'] h2,
+[data-theme='dark'] h3,
+[data-theme='dark'] h4,
+[data-theme='dark'] h5,
+[data-theme='dark'] h6,
+[data-theme='dark'] .dashboard .card,
+[data-theme='dark'] .dashboard .card a,
+[data-theme='dark'] .nav-group__label,
+[data-theme='dark'] .nav-group__toggle,
+[data-theme='dark'] .nav .nav__link,
+[data-theme='dark'] .template-default__wrap,
+[data-theme='dark'] .list-header,
+[data-theme='dark'] .collection-list,
+[data-theme='dark'] .render-title,
+[data-theme='dark'] .doc-header__title,
+[data-theme='dark'] .step-nav,
+[data-theme='dark'] .step-nav * {
+  color: #e0e0e0 !important;
+}
+
+/* Form labels */
 label.field-label,
 .field-type .field-label {
   color: #2a2a2a !important;
 }
 
-/* Dark mode - dark grey labels */
 [data-theme='dark'] label.field-label,
 [data-theme='dark'] .field-type .field-label {
-  color: #9ca3af !important;
+  color: #e0e0e0 !important;
 }
