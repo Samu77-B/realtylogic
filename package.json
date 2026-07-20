@@ -13,7 +13,9 @@
     "generate:types": "payload generate:types",
     "import:csv": "tsx scripts/import-csv.ts",
     "init:db": "tsx scripts/init-db.ts",
-    "reset:admin": "tsx scripts/reset-admin.ts"
+    "reset:admin": "tsx scripts/reset-admin.ts",
+    "import:rentals": "tsx scripts/import-rentals-direct.ts",
+    "import:sales": "tsx scripts/import-sales-direct.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.79.0",
