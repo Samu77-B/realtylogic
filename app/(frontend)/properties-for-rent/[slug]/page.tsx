@@ -7,6 +7,7 @@ import { PropertyImageGallery } from '@/components/PropertyImageGallery'
 import { PropertyVideo } from '@/components/PropertyVideo'
 import { ArrangeViewingForm } from '@/components/ArrangeViewingForm'
 import { ShareSection } from '@/components/ShareSection'
+import { PropertyMap } from '@/components/PropertyMap'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -65,9 +66,6 @@ export default async function PropertyRentPage({ params }: Props) {
   const agent = typeof property.agent === 'object' ? property.agent : null
   const floorPlan = typeof property.floorPlan === 'object' ? property.floorPlan : null
   const floorPlanUrl = floorPlan && 'url' in floorPlan ? floorPlan.url : null
-
-  const mapLat = property.mapLat ?? 51.5074
-  const mapLng = property.mapLng ?? -0.1278
 
   const featuresList = property.features
     ? property.features.split(/[,;|\n]/).map((f) => f.trim()).filter(Boolean)
@@ -328,28 +326,13 @@ export default async function PropertyRentPage({ params }: Props) {
                 )}
 
                 {/* Map */}
-                <div className="mt-8">
-                  <h2 className="text-xl font-semibold text-gray-900">Location</h2>
-                  <div className="mt-4 aspect-video w-full overflow-hidden rounded border border-gray-200">
-                    <iframe
-                      title="Property location"
-                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${(mapLng - 0.02).toFixed(4)}%2C${(mapLat - 0.02).toFixed(4)}%2C${(mapLng + 0.02).toFixed(4)}%2C${(mapLat + 0.02).toFixed(4)}&layer=mapnik`}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                    />
-                  </div>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.address || property.title || 'London')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-block text-sm text-blue-600 hover:underline"
-                  >
-                    View on Google Maps
-                  </a>
-                </div>
+                <PropertyMap
+                  address={property.address}
+                  location={property.location}
+                  title={property.title}
+                  mapLat={property.mapLat}
+                  mapLng={property.mapLng}
+                />
               </div>
             </div>
           </div>

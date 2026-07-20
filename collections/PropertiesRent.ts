@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { geocodeAddressHook } from '@/lib/hooks/geocodeAddressHook'
 
 export const PropertiesRent: CollectionConfig = {
   slug: 'properties-rent',
@@ -190,19 +191,31 @@ export const PropertiesRent: CollectionConfig = {
       defaultValue: false,
     },
     {
+      name: 'address',
+      type: 'text',
+      admin: {
+        description:
+          'Full property address — used to place the pin on the public map. Latitude/longitude fill in automatically on save.',
+      },
+    },
+    {
       name: 'mapLat',
       type: 'number',
+      admin: {
+        readOnly: true,
+        description: 'Auto-filled from Address on save',
+      },
     },
     {
       name: 'mapLng',
       type: 'number',
-    },
-    {
-      name: 'address',
-      type: 'text',
       admin: {
-        description: 'Full address for map display',
+        readOnly: true,
+        description: 'Auto-filled from Address on save',
       },
     },
   ],
+  hooks: {
+    beforeChange: [geocodeAddressHook],
+  },
 }

@@ -7,6 +7,7 @@ import { PropertyImageGallery } from '@/components/PropertyImageGallery'
 import { PropertyVideo } from '@/components/PropertyVideo'
 import { ArrangeViewingForm } from '@/components/ArrangeViewingForm'
 import { ShareSection } from '@/components/ShareSection'
+import { PropertyMap } from '@/components/PropertyMap'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -238,28 +239,13 @@ export default async function PropertySalePage({ params }: Props) {
                 )}
 
                 {/* Map */}
-                <div className="mt-8">
-                  <h2 className="text-xl font-semibold text-gray-900">Location</h2>
-                  <div className="mt-4 aspect-video w-full overflow-hidden rounded border border-gray-200">
-                    <iframe
-                      title="Property location"
-                      src={`https://www.openstreetmap.org/export/embed.html?bbox=-0.15%2C51.49%2C-0.11%2C51.53&layer=mapnik`}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                    />
-                  </div>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.location || property.title || 'London')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-block text-sm text-blue-600 hover:underline"
-                  >
-                    View on Google Maps
-                  </a>
-                </div>
+                <PropertyMap
+                  address={(property as { address?: string | null }).address}
+                  location={property.location}
+                  title={property.title}
+                  mapLat={(property as { mapLat?: number | null }).mapLat}
+                  mapLng={(property as { mapLng?: number | null }).mapLng}
+                />
               </div>
             </div>
           </div>
