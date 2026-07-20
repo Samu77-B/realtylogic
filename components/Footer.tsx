@@ -72,6 +72,9 @@ export function Footer() {
         </p>
         <p className="mt-1 text-center">
           <div className="flex items-center gap-3">
+            <Link href="/manager/bulk-upload" className="text-xs text-gray-600 opacity-50 hover:opacity-70 hover:text-gray-500 transition-opacity">
+              Bulk upload
+            </Link>
             <Link href="/manager/realty-ai" className="text-xs text-gray-600 opacity-50 hover:opacity-70 hover:text-gray-500 transition-opacity">
               Realty AI
             </Link>

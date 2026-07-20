@@ -154,7 +154,14 @@ export interface User {
  */
 export interface Media {
   id: number;
-  alt: string;
+  /**
+   * Short description of the image (auto-filled from filename if blank)
+   */
+  alt?: string | null;
+  /**
+   * Set automatically after Realty Logic watermark is applied
+   */
+  watermarked?: boolean | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -428,6 +435,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  watermarked?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

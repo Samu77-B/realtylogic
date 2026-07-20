@@ -61,6 +61,10 @@ After adding Blob, redeploy the project, then upload again in **Admin → Media*
 
 After changing env vars, redeploy the project. The homepage and `/admin` should load without database errors once `DATABASE_URI` points at an active Neon database.
 
+## Bulk photo upload
+
+Managers (logged into `/admin`) can open `/manager/bulk-upload` to drag-and-drop many images at once. Each photo is watermarked and saved to **Media**.
+
 ## Realty AI (manager assistant)
 
 Managers can open `/manager/realty-ai` after logging in at `/admin`.
