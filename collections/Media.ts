@@ -2,6 +2,32 @@ import type { CollectionConfig } from 'payload'
 import { put } from '@vercel/blob'
 import { applyRealtyLogicWatermark } from '@/lib/media/watermark'
 
+type IncomingFile = {
+  data?: Buffer
+  mimetype?: string
+  name?: string
+  size?: number
+}
+
+async function watermarkIncomingFile(req: {
+  file?: IncomingFile
+  context?: Record<string, unknown>
+}): Promise<boolean> {
+  if (req.context?.skipWatermark) return false
+  const file = req.file
+  if (!file?.data || !Buffer.isBuffer(file.data)) return false
+  if (!String(file.mimetype || '').startsWith('image/')) return false
+
+  const watermarked = await applyRealtyLogicWatermark(file.data)
+  file.data = watermarked
+  file.size = watermarked.length
+  file.mimetype = 'image/jpeg'
+  if (typeof file.name === 'string' && file.name) {
+    file.name = file.name.replace(/\.[^.]+$/, '') + '.jpg'
+  }
+  return true
+}
+
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
@@ -14,6 +40,20 @@ export const Media: CollectionConfig = {
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'],
   },
   hooks: {
+    beforeOperation: [
+      async ({ args, operation, req }) => {
+        if (operation !== 'create' && operation !== 'update') return args
+        try {
+          const applied = await watermarkIncomingFile(req)
+          if (applied && args.data && typeof args.data === 'object') {
+            ;(args.data as { watermarked?: boolean }).watermarked = true
+          }
+        } catch (error) {
+          req.payload.logger.error({ err: error, msg: 'Failed to watermark incoming media file' })
+        }
+        return args
+      },
+    ],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data
@@ -29,6 +69,7 @@ export const Media: CollectionConfig = {
     ],
     afterChange: [
       async ({ doc, req, context }) => {
+        // Fallback for clientUploads (file already on Blob before create)
         if (context?.skipWatermark) return doc
         if (doc.watermarked) return doc
         if (!doc.url || typeof doc.url !== 'string') return doc
@@ -40,7 +81,8 @@ export const Media: CollectionConfig = {
           const input = Buffer.from(await res.arrayBuffer())
           const watermarked = await applyRealtyLogicWatermark(input)
           const base =
-            (typeof doc.filename === 'string' && doc.filename.replace(/\.[^.]+$/, '')) || `media-${doc.id}`
+            (typeof doc.filename === 'string' && doc.filename.replace(/\.[^.]+$/, '')) ||
+            `media-${doc.id}`
           const pathname = `media/wm-${base}.jpg`
 
           const blob = await put(pathname, watermarked, {
@@ -86,7 +128,7 @@ export const Media: CollectionConfig = {
       defaultValue: false,
       admin: {
         readOnly: true,
-        description: 'Set automatically after Realty Logic watermark is applied',
+        description: 'Set automatically after Realty Logic house watermark is applied',
       },
     },
   ],
