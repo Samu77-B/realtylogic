@@ -2,11 +2,47 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 
 export function Hero() {
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const sectionRef = useRef<HTMLElement>(null)
+  const bgRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    const bg = bgRef.current
+    if (!section || !bg) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) return
+
+    let frame = 0
+
+    const update = () => {
+      frame = 0
+      const rect = section.getBoundingClientRect()
+      // Move background slower than scroll (~35% of scroll through section)
+      const offset = Math.max(-80, Math.min(80, rect.top * -0.35))
+      bg.style.transform = `translate3d(0, ${offset}px, 0) scale(1.12)`
+    }
+
+    const onScroll = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [])
 
   function onSearch(e: FormEvent) {
     e.preventDefault()
@@ -19,13 +55,15 @@ export function Hero() {
   }
 
   return (
-    <section className="relative bg-white">
+    <section ref={sectionRef} className="relative bg-white">
       {/* Full-bleed hero image band */}
       <div className="relative h-[42vh] min-h-[280px] w-full overflow-hidden sm:h-[48vh] sm:min-h-[360px] md:h-[52vh]">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          ref={bgRef}
+          className="absolute inset-[-12%] will-change-transform bg-cover bg-center"
           style={{
             backgroundImage: 'url(/Imgs/67dadcfe9bc25563a5dbbe3a_RentalsLogicMain.jpg)',
+            transform: 'translate3d(0, 0, 0) scale(1.12)',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
