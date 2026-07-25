@@ -70,7 +70,7 @@ export function Hero() {
       </div>
 
       {/* Search card overlapping hero + content */}
-      <div className="relative z-10 mx-auto -mt-24 max-w-3xl px-4 pb-6 sm:-mt-32 sm:px-6 md:-mt-36">
+      <div className="relative z-10 mx-auto -mt-24 w-full max-w-[728px] px-4 pb-6 sm:-mt-32 sm:px-6 md:-mt-36">
         <div
           className="rounded-2xl bg-white px-5 py-6 sm:rounded-3xl sm:px-8 sm:py-8"
           style={{
