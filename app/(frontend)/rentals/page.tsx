@@ -9,13 +9,30 @@ export const metadata = {
   description: 'Properties to let',
 }
 
-export default async function RentalsPage() {
+type Props = {
+  searchParams: Promise<{ q?: string }>
+}
+
+export default async function RentalsPage({ searchParams }: Props) {
+  const { q } = await searchParams
+  const query = (q || '').trim()
   const payload = await getPayloadClient()
 
   const { docs: properties } = await payload.find({
     collection: 'properties-rent',
     limit: 100,
     sort: '-createdAt',
+    ...(query
+      ? {
+          where: {
+            or: [
+              { title: { contains: query } },
+              { address: { contains: query } },
+              { location: { contains: query } },
+            ],
+          },
+        }
+      : {}),
   })
 
   const isRentAgreed = (status: string | null | undefined) => {
