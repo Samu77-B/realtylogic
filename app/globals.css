@@ -67,7 +67,7 @@ h1, h2, h3 {
   font-family: "Open Sans", sans-serif;
   box-sizing: border-box;
   margin: 0.67em 0;
-  margin-bottom: 10px;
+  margin-bottom: 2rem;
   margin-top: 20px;
   line-height: 44px;
   background-color: var(--ltblue);
