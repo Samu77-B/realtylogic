@@ -66,7 +66,7 @@ export function Hero() {
             transform: 'translate3d(0, 0, 0) scale(1.12)',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-transparent" />
       </div>
 
       {/* Search card overlapping hero + content */}
@@ -74,7 +74,8 @@ export function Hero() {
         <div
           className="rounded-2xl bg-white px-5 py-6 sm:rounded-3xl sm:px-8 sm:py-8"
           style={{
-            boxShadow: '0 18px 50px rgba(0,0,0,0.12), 0 4px 14px rgba(0,0,0,0.06)',
+            // Soft even glow — no hard top edge line against the hero
+            boxShadow: '0 0 40px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.05)',
           }}
         >
           <form onSubmit={onSearch} className="flex gap-2 sm:gap-3">
@@ -144,7 +145,7 @@ export function Hero() {
             </Link>
           </div>
 
-          <div className="mt-6 border-t border-gray-100 pt-5 sm:mt-8 sm:pt-6">
+          <div className="mt-6 pt-1 sm:mt-8">
             <h1 className="!mb-3 !text-[28px] !font-light !leading-tight text-[#333] sm:!text-[36px] sm:!leading-[44px]">
               Intelligent Property Solutions
             </h1>
