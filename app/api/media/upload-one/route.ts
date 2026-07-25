@@ -71,7 +71,6 @@ export async function POST(request: Request) {
       file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ') ||
       'Property image'
 
-    // 1) Upload watermarked bytes to Blob ourselves (reliable on Vercel)
     const blob = await put(`media/${filename}`, watermarked, {
       access: 'public',
       token,
@@ -79,54 +78,21 @@ export async function POST(request: Request) {
       addRandomSuffix: true,
     })
 
-    // 2) Create Media doc — try with file (Payload storage adapter), else URL-only record
-    let doc
-    try {
-      doc = await auth.payload.create({
-        collection: 'media',
-        data: { alt, watermarked: true },
-        file: {
-          data: watermarked,
-          mimetype: 'image/jpeg',
-          name: filename,
-          size: watermarked.length,
-        },
-        overrideAccess: true,
-        context: { skipWatermark: true },
-      })
-
-      // Prefer the watermarked Blob URL we wrote first
-      if (doc.url !== blob.url) {
-        try {
-          doc = await auth.payload.update({
-            collection: 'media',
-            id: doc.id,
-            data: { url: blob.url, watermarked: true },
-            overrideAccess: true,
-            context: { skipWatermark: true },
-          })
-        } catch {
-          // keep adapter URL if update fails
-        }
-      }
-    } catch (createErr) {
-      console.error('Payload media create with file failed, using URL record:', createErr)
-      doc = await auth.payload.create({
-        collection: 'media',
-        data: {
-          alt,
-          watermarked: true,
-          url: blob.url,
-          filename: blob.pathname.split('/').pop() || filename,
-          mimeType: 'image/jpeg',
-          filesize: watermarked.length,
-          width: meta.width ?? undefined,
-          height: meta.height ?? undefined,
-        },
-        overrideAccess: true,
-        context: { skipWatermark: true },
-      })
-    }
+    const doc = await auth.payload.create({
+      collection: 'media',
+      data: {
+        alt,
+        watermarked: true,
+        url: blob.url,
+        filename: blob.pathname.split('/').pop() || filename,
+        mimeType: 'image/jpeg',
+        filesize: watermarked.length,
+        width: meta.width ?? undefined,
+        height: meta.height ?? undefined,
+      },
+      overrideAccess: true,
+      context: { skipWatermark: true },
+    })
 
     return NextResponse.json({
       ok: true,

@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 import { put } from '@vercel/blob'
 import { applyRealtyLogicWatermark } from '@/lib/media/watermark'
 
@@ -28,6 +28,49 @@ async function watermarkIncomingFile(req: {
   return true
 }
 
+/** Client uploads land with a Blob URL but no req.file — watermark before the DB row is written. */
+const watermarkClientBlobUrl: CollectionBeforeChangeHook = async ({ data, operation, context, req }) => {
+  if (context?.skipWatermark || !data) return data
+  if (data.watermarked) return data
+  if (operation !== 'create' && operation !== 'update') return data
+
+  const url = typeof data.url === 'string' ? data.url : ''
+  if (!url || !url.includes('blob.vercel-storage.com')) return data
+
+  // Server-side uploads are watermarked on req.file in beforeOperation
+  if (req.file?.data) return data
+
+  const token = process.env.BLOB_READ_WRITE_TOKEN
+  if (!token) return data
+
+  try {
+    const res = await fetch(url)
+    if (!res.ok) return data
+    const input = Buffer.from(await res.arrayBuffer())
+    const watermarked = await applyRealtyLogicWatermark(input)
+    const base =
+      (typeof data.filename === 'string' && data.filename.replace(/\.[^.]+$/, '')) || `media-${Date.now()}`
+    const blob = await put(`media/wm-${base}.jpg`, watermarked, {
+      access: 'public',
+      token,
+      contentType: 'image/jpeg',
+      addRandomSuffix: true,
+    })
+
+    data.url = blob.url
+    data.watermarked = true
+    data.mimeType = 'image/jpeg'
+    data.filesize = watermarked.length
+    if (typeof data.filename === 'string') {
+      data.filename = blob.pathname.split('/').pop() || data.filename
+    }
+  } catch (error) {
+    req.payload.logger.error({ err: error, msg: 'Failed to watermark client-uploaded media URL' })
+  }
+
+  return data
+}
+
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
@@ -38,6 +81,8 @@ export const Media: CollectionConfig = {
   },
   upload: {
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'],
+    // Allow Media rows when the file was uploaded to Blob on the client (URL-only create)
+    filesRequiredOnCreate: false,
   },
   hooks: {
     beforeOperation: [
@@ -54,6 +99,7 @@ export const Media: CollectionConfig = {
         return args
       },
     ],
+    beforeChange: [watermarkClientBlobUrl],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data
@@ -65,50 +111,6 @@ export const Media: CollectionConfig = {
           data.alt = fromName.trim() || 'Property image'
         }
         return data
-      },
-    ],
-    afterChange: [
-      async ({ doc, req, context }) => {
-        // Fallback for clientUploads (file already on Blob before create)
-        if (context?.skipWatermark) return doc
-        if (doc.watermarked) return doc
-        if (!doc.url || typeof doc.url !== 'string') return doc
-        if (!process.env.BLOB_READ_WRITE_TOKEN) return doc
-
-        try {
-          const res = await fetch(doc.url)
-          if (!res.ok) return doc
-          const input = Buffer.from(await res.arrayBuffer())
-          const watermarked = await applyRealtyLogicWatermark(input)
-          const base =
-            (typeof doc.filename === 'string' && doc.filename.replace(/\.[^.]+$/, '')) ||
-            `media-${doc.id}`
-          const pathname = `media/wm-${base}.jpg`
-
-          const blob = await put(pathname, watermarked, {
-            access: 'public',
-            token: process.env.BLOB_READ_WRITE_TOKEN,
-            contentType: 'image/jpeg',
-            addRandomSuffix: true,
-          })
-
-          await req.payload.update({
-            collection: 'media',
-            id: doc.id,
-            data: {
-              url: blob.url,
-              watermarked: true,
-              mimeType: 'image/jpeg',
-              filesize: watermarked.length,
-            },
-            overrideAccess: true,
-            context: { skipWatermark: true },
-          })
-        } catch (error) {
-          req.payload.logger.error({ err: error, msg: 'Failed to watermark media' })
-        }
-
-        return doc
       },
     ],
   },
