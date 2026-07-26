@@ -75,23 +75,21 @@ export default async function PropertySalePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <PropertyDetailHero imageUrl={imageUrls[0]} title={property.title} />
-
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <PropertyDetailHero imageUrl={imageUrls[0]}>
         <Link
           href="/sales"
-          className="mb-6 inline-block text-blue-600 hover:underline"
+          className="inline-block text-blue-600 hover:underline"
         >
           ← Back to sales
         </Link>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="mt-6 grid gap-8 lg:grid-cols-3">
           {/* Main content */}
           <div className="lg:col-span-2">
-            <div className="overflow-hidden bg-white">
+            <div className="overflow-hidden rounded-md">
               <PropertyImageGallery imageUrls={imageUrls} title={property.title} />
 
-              <div className="p-6 sm:p-8">
+              <div className="pt-6 sm:pt-8">
                 <h1 className="property-heading text-2xl sm:text-3xl">{property.title}</h1>
                 {property.location && (
                   <p className="mt-1 text-gray-600">{property.location}</p>
@@ -266,7 +264,7 @@ export default async function PropertySalePage({ params }: Props) {
             </div>
           </div>
         </div>
-      </div>
+      </PropertyDetailHero>
     </div>
   )
 }
