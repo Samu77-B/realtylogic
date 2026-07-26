@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { getPayloadClient } from '@/lib/payload'
 import { PropertyImageGallery } from '@/components/PropertyImageGallery'
+import { PropertyDetailHero } from '@/components/PropertyDetailHero'
 import { PropertyVideo } from '@/components/PropertyVideo'
 import { ArrangeViewingForm } from '@/components/ArrangeViewingForm'
 import { ShareSection } from '@/components/ShareSection'
@@ -74,6 +75,8 @@ export default async function PropertySalePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <PropertyDetailHero imageUrl={imageUrls[0]} title={property.title} />
+
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <Link
           href="/sales"
