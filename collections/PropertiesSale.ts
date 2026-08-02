@@ -3,6 +3,7 @@ import { geocodeAddressHook } from '@/lib/hooks/geocodeAddressHook'
 
 export const PropertiesSale: CollectionConfig = {
   slug: 'properties-sale',
+  orderable: true,
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'location', 'price', 'featured'],

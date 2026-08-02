@@ -3,6 +3,7 @@ import { geocodeAddressHook } from '@/lib/hooks/geocodeAddressHook'
 
 export const PropertiesRent: CollectionConfig = {
   slug: 'properties-rent',
+  orderable: true,
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'location', 'monthlyRent', 'featuredOnFrontPage'],

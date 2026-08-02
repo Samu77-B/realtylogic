@@ -21,7 +21,7 @@ export default async function RentalsPage({ searchParams }: Props) {
   const { docs: properties } = await payload.find({
     collection: 'properties-rent',
     limit: 100,
-    sort: '-createdAt',
+    sort: '_order',
     ...(query
       ? {
           where: {

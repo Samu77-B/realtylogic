@@ -12,12 +12,14 @@ export default async function HomePage() {
     collection: 'properties-rent',
     where: { featuredOnFrontPage: { equals: true } },
     limit: 6,
+    sort: '_order',
   })
 
   const salesResult = await payload.find({
     collection: 'properties-sale',
     where: { featured: { equals: true } },
     limit: 6,
+    sort: '_order',
   })
 
   const rentals = rentalsResult.docs

@@ -15,7 +15,7 @@ export default async function SalesPage() {
   const { docs: properties } = await payload.find({
     collection: 'properties-sale',
     limit: 100,
-    sort: '-createdAt',
+    sort: '_order',
   })
 
   const isSalesAgreed = (status: string | null | undefined) => {
