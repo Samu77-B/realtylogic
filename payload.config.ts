@@ -63,8 +63,6 @@ export default buildConfig({
         // Recommended for client uploads — serves files from Blob URLs directly
         media: {
           disablePayloadAccessControl: true,
-          // Uploads go under media/ — must match generateURL prefix behaviour
-          prefix: 'media',
         },
       },
       token: process.env.BLOB_READ_WRITE_TOKEN,
