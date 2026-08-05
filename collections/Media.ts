@@ -1,6 +1,7 @@
-import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionAfterReadHook, CollectionConfig } from 'payload'
 import { put } from '@vercel/blob'
 import { applyRealtyLogicWatermark } from '@/lib/media/watermark'
+import { getMediaUrl } from '@/lib/media/getMediaUrl'
 
 type IncomingFile = {
   data?: Buffer
@@ -100,6 +101,14 @@ export const Media: CollectionConfig = {
       },
     ],
     beforeChange: [watermarkClientBlobUrl],
+    afterRead: [
+      (({ doc }) => {
+        if (!doc) return doc
+        const fixed = getMediaUrl(doc)
+        if (fixed) doc.url = fixed
+        return doc
+      }) as CollectionAfterReadHook,
+    ],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data

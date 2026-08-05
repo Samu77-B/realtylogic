@@ -55,6 +55,15 @@ export function PropertyImageGallery({ imageUrls, title }: PropertyImageGalleryP
         ))}
       </div>
 
+      {/* Logo overlay sits in the visible frame so object-cover never clips it */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/Imgs/rl-house-logo.png"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute bottom-3 right-3 z-[5] h-10 w-10 object-contain opacity-90 sm:bottom-4 sm:right-4 sm:h-12 sm:w-12"
+      />
+
       <button
         type="button"
         className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 shadow-md transition hover:bg-white"

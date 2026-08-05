@@ -1,8 +1,9 @@
 import { getPayloadClient } from '@/lib/payload'
-
-export const dynamic = 'force-dynamic'
 import { PropertyCard } from '@/components/PropertyCard'
 import { ListingsBanner } from '@/components/ListingsBanner'
+import { getMediaUrl } from '@/lib/media/getMediaUrl'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Rental Properties - Realty Logic UK',
@@ -58,7 +59,10 @@ export default async function RentalsPage({ searchParams }: Props) {
               price={property.monthlyRent || ''}
               bedrooms={property.bedrooms ?? undefined}
               bathrooms={property.bathrooms ?? undefined}
-              imageUrl={property.mainImageUrl ?? (typeof property.mainImage === 'object' ? property.mainImage?.url ?? undefined : undefined)}
+              imageUrl={
+                property.mainImageUrl ??
+                (typeof property.mainImage === 'object' ? getMediaUrl(property.mainImage) ?? undefined : undefined)
+              }
               href={`/properties-for-rent/${property.slug}`}
               showNewBadge={property.featuredOnFrontPage ?? false}
               isRental

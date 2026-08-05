@@ -78,13 +78,18 @@ export async function POST(request: Request) {
       addRandomSuffix: true,
     })
 
+    const storedFilename =
+      decodeURIComponent(new URL(blob.url).pathname.split('/').pop() || '') ||
+      blob.pathname.split('/').pop() ||
+      filename
+
     const doc = await auth.payload.create({
       collection: 'media',
       data: {
         alt,
         watermarked: true,
         url: blob.url,
-        filename: blob.pathname.split('/').pop() || filename,
+        filename: storedFilename,
         mimeType: 'image/jpeg',
         filesize: watermarked.length,
         width: meta.width ?? undefined,

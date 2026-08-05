@@ -65,25 +65,31 @@ async function logoWithTransparency(logoBuf: Buffer, targetW: number): Promise<B
  * Applies public/Imgs/rl-house-watermark.png to the bottom-right of a property photo.
  */
 export async function applyRealtyLogicWatermark(input: Buffer): Promise<Buffer> {
-  const image = sharp(input, { failOn: 'none' }).rotate()
-  const meta = await image.metadata()
+  // Bake orientation first so width/height match the pixels we composite onto.
+  const normalized = await sharp(input, { failOn: 'none' }).rotate().toBuffer()
+  const meta = await sharp(normalized).metadata()
   const width = meta.width || 1200
   const height = meta.height || 800
 
   const logoBuf = await getLogoBuffer()
-  const targetW = Math.max(120, Math.round(width * 0.18))
+  // Slightly smaller + trim empty edges so the house isn't clipped at the frame edge
+  const targetW = Math.max(96, Math.round(width * 0.12))
   const watermark = await logoWithTransparency(logoBuf, targetW)
-  const wmMeta = await sharp(watermark).metadata()
+  const trimmed = await sharp(watermark).trim().png().toBuffer()
+  const wmMeta = await sharp(trimmed).metadata()
   const wmW = wmMeta.width || targetW
   const wmH = wmMeta.height || targetW
-  const margin = Math.max(16, Math.round(width * 0.025))
+  const margin = Math.max(40, Math.round(width * 0.05))
 
-  return image
+  const left = Math.max(0, width - wmW - margin)
+  const top = Math.max(0, height - wmH - margin)
+
+  return sharp(normalized)
     .composite([
       {
-        input: watermark,
-        left: Math.max(0, width - wmW - margin),
-        top: Math.max(0, height - wmH - margin),
+        input: trimmed,
+        left,
+        top,
         blend: 'over',
       },
     ])

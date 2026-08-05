@@ -11,15 +11,10 @@ import { ShareSection } from '@/components/ShareSection'
 import { PropertyMap } from '@/components/PropertyMap'
 import { WeChatContactCard } from '@/components/WeChatContactCard'
 
+import { getMediaUrl } from '@/lib/media/getMediaUrl'
+
 type Props = {
   params: Promise<{ slug: string }>
-}
-
-function getMediaUrl(item: unknown): string | null {
-  if (typeof item === 'object' && item !== null && 'url' in item && typeof (item as { url?: string }).url === 'string') {
-    return (item as { url: string }).url
-  }
-  return null
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -51,15 +46,15 @@ export default async function PropertyRentPage({ params }: Props) {
 
   const mainImageUrl =
     property.mainImageUrl ??
-    (typeof property.mainImage === 'object' && property.mainImage?.url) ??
-    null
+    (typeof property.mainImage === 'object' && property.mainImage
+      ? getMediaUrl(property.mainImage)
+      : null)
 
   const imageUrls: string[] = []
   if (mainImageUrl) imageUrls.push(mainImageUrl)
   if (property.images?.length) {
     for (const item of property.images) {
-      const img = item.image
-      const url = typeof img === 'object' && img !== null ? getMediaUrl(img) : null
+      const url = getMediaUrl(item.image)
       if (url && !imageUrls.includes(url)) imageUrls.push(url)
     }
   }
@@ -67,7 +62,7 @@ export default async function PropertyRentPage({ params }: Props) {
 
   const agent = typeof property.agent === 'object' ? property.agent : null
   const floorPlan = typeof property.floorPlan === 'object' ? property.floorPlan : null
-  const floorPlanUrl = floorPlan && 'url' in floorPlan ? floorPlan.url : null
+  const floorPlanUrl = getMediaUrl(floorPlan)
 
   const featuresList = property.features
     ? property.features.split(/[,;|\n]/).map((f) => f.trim()).filter(Boolean)
