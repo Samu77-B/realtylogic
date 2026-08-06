@@ -63,6 +63,7 @@ async function logoWithTransparency(logoBuf: Buffer, targetW: number): Promise<B
 
 /**
  * Applies public/Imgs/rl-house-watermark.png to the bottom-right of a property photo.
+ * Inset far enough that a typical object-cover crop still keeps the full house visible.
  */
 export async function applyRealtyLogicWatermark(input: Buffer): Promise<Buffer> {
   // Bake orientation first so width/height match the pixels we composite onto.
@@ -70,19 +71,20 @@ export async function applyRealtyLogicWatermark(input: Buffer): Promise<Buffer> 
   const meta = await sharp(normalized).metadata()
   const width = meta.width || 1200
   const height = meta.height || 800
+  const shortSide = Math.min(width, height)
 
   const logoBuf = await getLogoBuffer()
-  // Slightly smaller + trim empty edges so the house isn't clipped at the frame edge
-  const targetW = Math.max(96, Math.round(width * 0.12))
+  // Small mark + large inset so object-cover centre crops don't clip it
+  const targetW = Math.max(72, Math.min(160, Math.round(shortSide * 0.08)))
   const watermark = await logoWithTransparency(logoBuf, targetW)
-  const trimmed = await sharp(watermark).trim().png().toBuffer()
+  const trimmed = await sharp(watermark).trim({ threshold: 10 }).png().toBuffer()
   const wmMeta = await sharp(trimmed).metadata()
   const wmW = wmMeta.width || targetW
   const wmH = wmMeta.height || targetW
-  const margin = Math.max(40, Math.round(width * 0.05))
+  const margin = Math.max(48, Math.round(shortSide * 0.1))
 
-  const left = Math.max(0, width - wmW - margin)
-  const top = Math.max(0, height - wmH - margin)
+  const left = Math.min(Math.max(0, width - wmW - margin), Math.max(0, width - wmW))
+  const top = Math.min(Math.max(0, height - wmH - margin), Math.max(0, height - wmH))
 
   return sharp(normalized)
     .composite([

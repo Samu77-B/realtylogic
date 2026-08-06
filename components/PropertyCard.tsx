@@ -43,6 +43,13 @@ export function PropertyCard({
           alt={title}
           className="h-full w-full rounded-md object-cover"
         />
+        <div
+          className="pointer-events-none absolute bottom-0 right-0 z-[1] rounded-tl-xl bg-gradient-to-tl from-black/30 via-black/10 to-transparent p-2"
+          aria-hidden
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Imgs/rl-house-logo.png" alt="" className="h-7 w-7 object-contain opacity-95" />
+        </div>
         {showNewBadge && (
           <div className="absolute left-2 top-2 rounded-md bg-black px-2 py-1 text-xs font-medium uppercase tracking-wide text-white">
             NEW
