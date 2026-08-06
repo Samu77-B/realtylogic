@@ -54,8 +54,13 @@ Set these environment variables in the Vercel project (**Settings → Environmen
 | `DATABASE_URI` | Same Neon pooled connection string as local `.env` |
 | `PAYLOAD_SECRET` | Same secret as local `.env` |
 | `BLOB_READ_WRITE_TOKEN` | From Vercel **Storage → Blob** after adding Blob to the project |
+| `RESEND_API_KEY` | From [Resend](https://resend.com) — required for enquiry email notifications |
+| `ENQUIRY_TO_EMAIL` | Optional; defaults to `contact@realtylogic.co.uk` |
+| `ENQUIRY_FROM_EMAIL` | Optional; use a verified Resend domain in production |
 
 **Photo uploads on Vercel:** Add **Blob storage** to the Vercel project (**Storage → Create → Blob**). Vercel sets `BLOB_READ_WRITE_TOKEN` automatically. Without this token, image uploads fail on production (serverless has no persistent disk). Payload uses `@payloadcms/storage-vercel-blob` with client-side uploads for files up to 30MB.
+
+**Enquiry forms:** Contact page and “Arrange a viewing” post to `/api/enquiry`, save to **Admin → Enquiries**, and email via Resend when `RESEND_API_KEY` is set.
 
 After adding Blob, redeploy the project, then upload again in **Admin → Media** (or on a property’s Main Image field).
 
@@ -63,7 +68,7 @@ After changing env vars, redeploy the project. The homepage and `/admin` should 
 
 ## Bulk photo upload
 
-Managers (logged into `/admin`) can open `/manager/bulk-upload` to drag-and-drop many images at once. Each photo is watermarked and saved to **Media**.
+Managers (logged into `/admin`) can open `/manager/bulk-upload` to drag-and-drop many images at once. Each photo is compressed and saved to **Media**. Branding uses a CSS logo overlay on the site.
 
 ## Realty AI (manager assistant)
 
@@ -83,6 +88,8 @@ Requires Vercel AI Gateway (OIDC on Vercel, or `AI_GATEWAY_API_KEY` locally). Se
 - `npm run start` – Start production server
 - `npm run init:db` – Create Payload tables and first admin user
 - `npm run import:csv` – Import CSV data into Payload
+- `npm run import:sales-images` – Attach Webflow CDN images to sales listings
+- `npm run import:rental-images` – Attach Webflow CDN images to rental listings
 
 ## Structure
 

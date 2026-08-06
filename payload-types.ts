@@ -72,6 +72,7 @@ export interface Config {
     agents: Agent;
     'properties-sale': PropertiesSale;
     'properties-rent': PropertiesRent;
+    enquiries: Enquiry;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     agents: AgentsSelect<false> | AgentsSelect<true>;
     'properties-sale': PropertiesSaleSelect<false> | PropertiesSaleSelect<true>;
     'properties-rent': PropertiesRentSelect<false> | PropertiesRentSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -159,7 +161,7 @@ export interface Media {
    */
   alt?: string | null;
   /**
-   * Set automatically after Realty Logic watermark is applied
+   * Legacy flag — photos use a CSS logo overlay instead of a baked watermark
    */
   watermarked?: boolean | null;
   updatedAt: string;
@@ -201,6 +203,7 @@ export interface Agent {
  */
 export interface PropertiesSale {
   id: number;
+  _order?: string | null;
   title: string;
   /**
    * URL-friendly identifier
@@ -226,9 +229,12 @@ export interface PropertiesSale {
    * Placeholder or external image URL when no upload
    */
   mainImageUrl?: string | null;
+  /**
+   * Add rows only after each photo is uploaded. Empty rows block Save.
+   */
   images?:
     | {
-        image: number | Media;
+        image?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -241,6 +247,18 @@ export interface PropertiesSale {
   tenure?: string | null;
   featured?: boolean | null;
   agent?: (number | null) | Agent;
+  /**
+   * Full property address — used to place the pin on the public map. Latitude/longitude fill in automatically on save.
+   */
+  address?: string | null;
+  /**
+   * Auto-filled from Address on save
+   */
+  mapLat?: number | null;
+  /**
+   * Auto-filled from Address on save
+   */
+  mapLng?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -250,6 +268,7 @@ export interface PropertiesSale {
  */
 export interface PropertiesRent {
   id: number;
+  _order?: string | null;
   title: string;
   /**
    * URL-friendly identifier
@@ -291,9 +310,12 @@ export interface PropertiesRent {
    * Placeholder or external image URL when no upload
    */
   mainImageUrl?: string | null;
+  /**
+   * Add rows only after each photo is uploaded. Empty rows block Save.
+   */
   images?:
     | {
-        image: number | Media;
+        image?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -312,12 +334,42 @@ export interface PropertiesRent {
   dssAllowed?: boolean | null;
   couplesAllowed?: boolean | null;
   liftAccess?: boolean | null;
-  mapLat?: number | null;
-  mapLng?: number | null;
   /**
-   * Full address for map display
+   * Full property address — used to place the pin on the public map. Latitude/longitude fill in automatically on save.
    */
   address?: string | null;
+  /**
+   * Auto-filled from Address on save
+   */
+  mapLat?: number | null;
+  /**
+   * Auto-filled from Address on save
+   */
+  mapLng?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Contact and viewing enquiries from the website
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  message?: string | null;
+  /**
+   * ISO date string from the viewing form
+   */
+  preferredDate?: string | null;
+  preferredTime?: string | null;
+  propertyTitle?: string | null;
+  propertySlug?: string | null;
+  listingType: 'rent' | 'sale' | 'general';
+  source: 'viewing' | 'contact';
   updatedAt: string;
   createdAt: string;
 }
@@ -364,6 +416,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'properties-rent';
         value: number | PropertiesRent;
+      } | null)
+    | ({
+        relationTo: 'enquiries';
+        value: number | Enquiry;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -467,6 +523,7 @@ export interface AgentsSelect<T extends boolean = true> {
  * via the `definition` "properties-sale_select".
  */
 export interface PropertiesSaleSelect<T extends boolean = true> {
+  _order?: T;
   title?: T;
   slug?: T;
   introText?: T;
@@ -492,6 +549,9 @@ export interface PropertiesSaleSelect<T extends boolean = true> {
   tenure?: T;
   featured?: T;
   agent?: T;
+  address?: T;
+  mapLat?: T;
+  mapLng?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -500,6 +560,7 @@ export interface PropertiesSaleSelect<T extends boolean = true> {
  * via the `definition` "properties-rent_select".
  */
 export interface PropertiesRentSelect<T extends boolean = true> {
+  _order?: T;
   title?: T;
   slug?: T;
   introText?: T;
@@ -535,9 +596,27 @@ export interface PropertiesRentSelect<T extends boolean = true> {
   dssAllowed?: T;
   couplesAllowed?: T;
   liftAccess?: T;
+  address?: T;
   mapLat?: T;
   mapLng?: T;
-  address?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  message?: T;
+  preferredDate?: T;
+  preferredTime?: T;
+  propertyTitle?: T;
+  propertySlug?: T;
+  listingType?: T;
+  source?: T;
   updatedAt?: T;
   createdAt?: T;
 }

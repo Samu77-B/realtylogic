@@ -1,3 +1,5 @@
+import { ContactForm } from '@/components/ContactForm'
+
 export const metadata = {
   title: 'Contact - Realty Logic UK',
   description: 'Contact Realty Logic',
@@ -29,11 +31,8 @@ export default function ContactPage() {
             020 7459 4097
           </a>
         </div>
-        <div className="mt-12 rounded-lg border border-gray-200 bg-gray-50 p-8">
-          <h3 className="mb-4 text-lg font-semibold">Send us a message</h3>
-          <p className="text-gray-600">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Contact form placeholder.
-          </p>
+        <div className="mt-12">
+          <ContactForm />
         </div>
       </div>
     </div>

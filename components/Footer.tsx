@@ -17,7 +17,7 @@ export function Footer() {
               info@realtylogic.co.uk
             </a>
             <p className="text-sm">
-              Realty Logic Ltd. 163-168 Great Portland St, London W1W 5PQ
+              Realty Logic Ltd. 167-169 Great Portland St, London W1W 5PF
             </p>
             <div className="flex gap-2">
               <a

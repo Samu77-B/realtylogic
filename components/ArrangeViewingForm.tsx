@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 type ArrangeViewingFormProps = {
   propertyTitle: string
@@ -14,17 +15,47 @@ export function ArrangeViewingForm({
   isRental = true,
 }: ArrangeViewingFormProps) {
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (busy) return
+    setBusy(true)
+    setError(null)
+
     const form = e.currentTarget
     const formData = new FormData(form)
-    const data = Object.fromEntries(formData.entries())
 
-    // TODO: Connect to API/email service and booking calendar - preferredDate and preferredTime
-    // will be validated against available slots in the admin dashboard viewing calendar
-    console.log('Enquiry:', { ...data, property: propertyTitle, slug: propertySlug })
-    setSubmitted(true)
+    try {
+      const res = await fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.get('name'),
+          email: formData.get('email'),
+          phone: formData.get('phone') || '',
+          message: formData.get('message') || '',
+          preferredDate: formData.get('preferredDate') || '',
+          preferredTime: formData.get('preferredTime') || '',
+          company: formData.get('company') || '',
+          propertyTitle,
+          propertySlug,
+          listingType: isRental ? 'rent' : 'sale',
+          source: 'viewing',
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(typeof data.error === 'string' ? data.error : 'Could not send enquiry')
+      }
+      setSubmitted(true)
+      form.reset()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send enquiry')
+    } finally {
+      setBusy(false)
+    }
   }
 
   if (submitted) {
@@ -40,6 +71,15 @@ export function ArrangeViewingForm({
     <div className="rounded-lg bg-gray-100 p-6">
       <h3 className="text-lg font-semibold text-gray-900">Arrange a viewing</h3>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        {/* Honeypot */}
+        <input
+          type="text"
+          name="company"
+          tabIndex={-1}
+          autoComplete="off"
+          className="absolute left-[-9999px] h-0 w-0 opacity-0"
+          aria-hidden
+        />
         <div>
           <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">
             Name
@@ -120,14 +160,19 @@ export function ArrangeViewingForm({
             className="mt-1 h-4 w-4 rounded border-gray-300"
           />
           <label htmlFor="terms" className="text-sm text-gray-600">
-            I agree to the terms and conditions
+            I agree to the{' '}
+            <Link href="/terms-conditions" className="underline hover:text-gray-900">
+              terms and conditions
+            </Link>
           </label>
         </div>
+        {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
-          className="w-full bg-black py-3 font-medium uppercase tracking-wide text-white transition hover:bg-gray-800"
+          disabled={busy}
+          className="w-full bg-black py-3 font-medium uppercase tracking-wide text-white transition hover:bg-gray-800 disabled:opacity-60"
         >
-          Send Enquiry
+          {busy ? 'Sending…' : 'Send Enquiry'}
         </button>
       </form>
     </div>

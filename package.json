@@ -17,6 +17,7 @@
     "import:rentals": "tsx scripts/import-rentals-direct.ts",
     "import:sales": "tsx scripts/import-sales-direct.ts",
     "import:rental-images": "node --import tsx scripts/import-rental-images.ts",
+    "import:sales-images": "node --import tsx scripts/import-sales-images.ts",
     "create:admin": "tsx scripts/create-admin.ts"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "payload": "3.79.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^6.18.1",
     "sharp": "^0.34.0",
     "zod": "^4.4.3"
   },
