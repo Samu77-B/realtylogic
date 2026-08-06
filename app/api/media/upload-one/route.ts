@@ -2,7 +2,6 @@ import { put } from '@vercel/blob'
 import { NextResponse } from 'next/server'
 import sharp from 'sharp'
 import { getAdminUser } from '@/lib/realty-ai/auth'
-import { applyRealtyLogicWatermark } from '@/lib/media/watermark'
 
 export const maxDuration = 60
 export const runtime = 'nodejs'
@@ -54,14 +53,14 @@ export async function POST(request: Request) {
   try {
     const input = Buffer.from(await file.arrayBuffer())
 
+    // No baked watermark — frontend CSS overlay handles branding
     const normalised = await sharp(input, { failOn: 'none' })
       .rotate()
       .resize({ width: 2000, height: 2000, fit: 'inside', withoutEnlargement: true })
       .jpeg({ quality: 90, mozjpeg: true })
       .toBuffer()
 
-    const watermarked = await applyRealtyLogicWatermark(normalised)
-    const meta = await sharp(watermarked).metadata()
+    const meta = await sharp(normalised).metadata()
 
     const base = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.[^.]+$/, '') || 'image'
     const filename = `${base}-${Date.now()}.jpg`
@@ -71,7 +70,7 @@ export async function POST(request: Request) {
       file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ') ||
       'Property image'
 
-    const blob = await put(`media/${filename}`, watermarked, {
+    const blob = await put(`media/${filename}`, normalised, {
       access: 'public',
       token,
       contentType: 'image/jpeg',
@@ -87,16 +86,15 @@ export async function POST(request: Request) {
       collection: 'media',
       data: {
         alt,
-        watermarked: true,
+        watermarked: false,
         url: blob.url,
         filename: storedFilename,
         mimeType: 'image/jpeg',
-        filesize: watermarked.length,
+        filesize: normalised.length,
         width: meta.width ?? undefined,
         height: meta.height ?? undefined,
       },
       overrideAccess: true,
-      context: { skipWatermark: true },
     })
 
     return NextResponse.json({

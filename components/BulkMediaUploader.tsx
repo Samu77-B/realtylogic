@@ -150,8 +150,8 @@ export function BulkMediaUploader() {
         Bulk photo upload
       </h1>
       <p className="mt-2 text-gray-600">
-        Drag and drop many photos at once. Each image is compressed, watermarked with the Realty
-        Logic house logo, and saved to Media.
+        Drag and drop many photos at once. Each image is compressed and saved to Media.
+        Branding is shown as a small logo overlay on the website (not baked into the file).
       </p>
       <p className="mt-1 text-sm text-gray-500">
         You must be logged in at <a className="underline" href="/admin">/admin</a> first.

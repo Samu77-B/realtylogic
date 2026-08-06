@@ -20,7 +20,6 @@ import { randomBytes } from 'crypto'
 import pg from 'pg'
 import { put } from '@vercel/blob'
 import sharp from 'sharp'
-import { applyRealtyLogicWatermark } from '../lib/media/watermark'
 
 const LOG_FILE = join(process.cwd(), 'import-rental-images.log')
 function log(msg: string) {
@@ -94,18 +93,18 @@ async function uploadToMedia(
   alt: string,
   nameHint: string,
 ): Promise<number> {
+  // No baked watermark — site uses a CSS logo overlay so object-cover never clips it
   const normalised = await sharp(input, { failOn: 'none' })
     .rotate()
     .resize({ width: 2000, height: 2000, fit: 'inside', withoutEnlargement: true })
     .jpeg({ quality: 90, mozjpeg: true })
     .toBuffer()
 
-  const watermarked = await applyRealtyLogicWatermark(normalised)
-  const meta = await sharp(watermarked).metadata()
+  const meta = await sharp(normalised).metadata()
   const base = nameHint.replace(/\.[^.]+$/, '') || 'image'
   const filename = `${base}-${Date.now()}.jpg`
 
-  const blob = await put(`media/${filename}`, watermarked, {
+  const blob = await put(`media/${filename}`, normalised, {
     access: 'public',
     token,
     contentType: 'image/jpeg',
@@ -121,8 +120,8 @@ async function uploadToMedia(
   const result = await client.query(
     `
     INSERT INTO media (
-      alt, url, filename, mime_type, filesize, width, height, watermarked, created_at, updated_at
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,true,NOW(),NOW())
+      alt, url, filename, mime_type, filesize, width, height, watermarked, prefix, created_at, updated_at
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,false,'media',NOW(),NOW())
     RETURNING id
     `,
     [
@@ -130,7 +129,7 @@ async function uploadToMedia(
       blob.url,
       storedName,
       'image/jpeg',
-      watermarked.length,
+      normalised.length,
       meta.width ?? null,
       meta.height ?? null,
     ],
