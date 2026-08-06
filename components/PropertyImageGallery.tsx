@@ -14,13 +14,13 @@ function WatermarkBadge({ className = '' }: { className?: string }) {
       className={`pointer-events-none absolute z-[5] flex items-end justify-end ${className}`}
       aria-hidden
     >
-      {/* Soft pad hides any baked watermark clipped by object-cover */}
-      <div className="rounded-tl-2xl bg-gradient-to-tl from-black/35 via-black/10 to-transparent p-3 sm:p-4">
+      {/* Soft pad + inset keeps logo clear of the crop edge */}
+      <div className="rounded-tl-2xl bg-gradient-to-tl from-black/35 via-black/10 to-transparent p-2 sm:p-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/Imgs/rl-house-logo.png"
           alt=""
-          className="h-9 w-9 object-contain drop-shadow-md sm:h-11 sm:w-11"
+          className="h-14 w-14 object-contain drop-shadow-md sm:h-20 sm:w-20"
         />
       </div>
     </div>
@@ -107,7 +107,7 @@ export function PropertyImageGallery({ imageUrls, title }: PropertyImageGalleryP
           ))}
         </div>
 
-        <WatermarkBadge className="bottom-0 right-0" />
+        <WatermarkBadge className="bottom-4 right-4 sm:bottom-6 sm:right-6" />
 
         <button
           type="button"
@@ -234,7 +234,7 @@ export function PropertyImageGallery({ imageUrls, title }: PropertyImageGalleryP
                 alt={`${title} — photo ${current + 1}`}
                 className="max-h-[85vh] max-w-full object-contain"
               />
-              <WatermarkBadge className="bottom-0 right-0" />
+              <WatermarkBadge className="bottom-4 right-4 sm:bottom-6 sm:right-6" />
               <p className="mt-3 text-center text-sm text-white/80">
                 {current + 1} / {count} · click outside or press Esc to close
               </p>

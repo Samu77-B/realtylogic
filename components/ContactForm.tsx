@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+const fieldClassName =
+  'w-full rounded-md border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400'
+
 export function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -46,16 +49,14 @@ export function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-8">
-        <h3 className="mb-2 text-lg font-semibold text-gray-900">Send us a message</h3>
-        <p className="text-gray-600">Thank you — we&apos;ll get back to you shortly.</p>
+      <div className="rounded-2xl bg-gray-100 p-6 sm:p-8">
+        <p className="text-gray-700">Thank you — we&apos;ll get back to you shortly.</p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-gray-50 p-8">
-      <h3 className="mb-4 text-lg font-semibold text-gray-900">Send us a message</h3>
+    <div className="rounded-2xl bg-gray-100 p-6 sm:p-8">
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -66,50 +67,57 @@ export function ContactForm() {
           aria-hidden
         />
         <div>
-          <label htmlFor="contact-name" className="mb-1 block text-sm font-medium text-gray-700">
-            Name
+          <label htmlFor="contact-name" className="sr-only">
+            Your Name
           </label>
           <input
             type="text"
             id="contact-name"
             name="name"
             required
-            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            placeholder="Your Name"
+            autoComplete="name"
+            className={fieldClassName}
           />
         </div>
         <div>
-          <label htmlFor="contact-email" className="mb-1 block text-sm font-medium text-gray-700">
-            Email
+          <label htmlFor="contact-email" className="sr-only">
+            Your Email
           </label>
           <input
             type="email"
             id="contact-email"
             name="email"
             required
-            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            placeholder="Your Email"
+            autoComplete="email"
+            className={fieldClassName}
           />
         </div>
         <div>
-          <label htmlFor="contact-phone" className="mb-1 block text-sm font-medium text-gray-700">
-            Phone
+          <label htmlFor="contact-phone" className="sr-only">
+            Your Phone Number
           </label>
           <input
             type="tel"
             id="contact-phone"
             name="phone"
-            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            placeholder="Your Phone Number"
+            autoComplete="tel"
+            className={fieldClassName}
           />
         </div>
         <div>
-          <label htmlFor="contact-message" className="mb-1 block text-sm font-medium text-gray-700">
-            Message
+          <label htmlFor="contact-message" className="sr-only">
+            Questions
           </label>
           <textarea
             id="contact-message"
             name="message"
-            rows={5}
+            rows={6}
             required
-            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500"
+            placeholder="Questions"
+            className={`${fieldClassName} resize-y`}
           />
         </div>
         <div className="flex items-start gap-2">
@@ -120,9 +128,9 @@ export function ContactForm() {
             required
             className="mt-1 h-4 w-4 rounded border-gray-300"
           />
-          <label htmlFor="contact-terms" className="text-sm text-gray-600">
+          <label htmlFor="contact-terms" className="text-sm text-gray-500">
             I agree to the{' '}
-            <Link href="/terms-conditions" className="underline hover:text-gray-900">
+            <Link href="/terms-conditions" className="underline hover:text-gray-800">
               terms and conditions
             </Link>
           </label>
@@ -131,9 +139,9 @@ export function ContactForm() {
         <button
           type="submit"
           disabled={busy}
-          className="w-full bg-black py-3 font-medium uppercase tracking-wide text-white transition hover:bg-gray-800 disabled:opacity-60"
+          className="bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-60"
         >
-          {busy ? 'Sending…' : 'Send message'}
+          {busy ? 'Sending…' : 'Submit'}
         </button>
       </form>
     </div>
