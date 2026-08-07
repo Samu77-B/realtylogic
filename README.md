@@ -54,13 +54,13 @@ Set these environment variables in the Vercel project (**Settings → Environmen
 | `DATABASE_URI` | Same Neon pooled connection string as local `.env` |
 | `PAYLOAD_SECRET` | Same secret as local `.env` |
 | `BLOB_READ_WRITE_TOKEN` | From Vercel **Storage → Blob** after adding Blob to the project |
-| `RESEND_API_KEY` | From [Resend](https://resend.com) — required for enquiry email notifications |
-| `ENQUIRY_TO_EMAIL` | Optional; defaults to `contact@realtylogic.co.uk` |
-| `ENQUIRY_FROM_EMAIL` | Optional; use a verified Resend domain in production |
+| `RESEND_API_KEY` | From [Resend](https://resend.com) — required for enquiry emails |
+| `ENQUIRY_TO_EMAIL` | Office inbox; defaults to `contact@realtylogic.co.uk` |
+| `ENQUIRY_FROM_EMAIL` | Must use verified domain, e.g. `Realty Logic <contact@realtylogic.co.uk>` |
 
 **Photo uploads on Vercel:** Add **Blob storage** to the Vercel project (**Storage → Create → Blob**). Vercel sets `BLOB_READ_WRITE_TOKEN` automatically. Without this token, image uploads fail on production (serverless has no persistent disk). Payload uses `@payloadcms/storage-vercel-blob` with client-side uploads for files up to 30MB.
 
-**Enquiry forms:** Contact page and “Arrange a viewing” post to `/api/enquiry`, save to **Admin → Enquiries**, and email via Resend when `RESEND_API_KEY` is set.
+**Enquiry forms:** Contact and “Arrange a viewing” post to `/api/enquiry`, save to **Admin → Enquiries**, email the office, and send an auto-reply to the enquirer when `RESEND_API_KEY` is set.
 
 After adding Blob, redeploy the project, then upload again in **Admin → Media** (or on a property’s Main Image field).
 

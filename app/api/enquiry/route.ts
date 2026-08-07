@@ -21,6 +21,72 @@ const enquirySchema = z.object({
   company: z.string().optional().or(z.literal('')),
 })
 
+function officeNotificationText(data: z.infer<typeof enquirySchema>): string {
+  return [
+    `Name: ${data.name}`,
+    `Email: ${data.email}`,
+    data.phone ? `Phone: ${data.phone}` : null,
+    `Source: ${data.source}`,
+    `Listing type: ${data.listingType}`,
+    data.propertyTitle ? `Property: ${data.propertyTitle}` : null,
+    data.propertySlug ? `Slug: ${data.propertySlug}` : null,
+    data.preferredDate ? `Preferred date: ${data.preferredDate}` : null,
+    data.preferredTime ? `Preferred time: ${data.preferredTime}` : null,
+    '',
+    'Message:',
+    data.message || '(none)',
+  ]
+    .filter((line) => line !== null)
+    .join('\n')
+}
+
+function autoReplyText(data: z.infer<typeof enquirySchema>): string {
+  const firstName = data.name.split(/\s+/)[0] || data.name
+  const propertyLine = data.propertyTitle
+    ? `\nProperty: ${data.propertyTitle}`
+    : ''
+  const whenLines = [
+    data.preferredDate ? `Preferred date: ${data.preferredDate}` : null,
+    data.preferredTime ? `Preferred time: ${data.preferredTime}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n')
+
+  if (data.source === 'viewing') {
+    return [
+      `Hi ${firstName},`,
+      '',
+      'Thank you for your viewing enquiry with Realty Logic.',
+      'We have received your request and a member of the team will be in touch shortly to confirm.',
+      propertyLine.trim() || null,
+      whenLines || null,
+      '',
+      'If you need us sooner, call 020 7459 4097 or reply to this email.',
+      '',
+      'Kind regards,',
+      'Realty Logic',
+      '167-169 Great Portland Street, London W1W 5PF',
+      'https://realtylogic.co.uk',
+    ]
+      .filter((line) => line !== null)
+      .join('\n')
+  }
+
+  return [
+    `Hi ${firstName},`,
+    '',
+    'Thank you for contacting Realty Logic.',
+    'We have received your message and will get back to you as soon as possible.',
+    '',
+    'If your enquiry is urgent, call 020 7459 4097 or reply to this email.',
+    '',
+    'Kind regards,',
+    'Realty Logic',
+    '167-169 Great Portland Street, London W1W 5PF',
+    'https://realtylogic.co.uk',
+  ].join('\n')
+}
+
 export async function POST(request: Request) {
   let body: unknown
   try {
@@ -65,44 +131,43 @@ export async function POST(request: Request) {
 
     const to = process.env.ENQUIRY_TO_EMAIL?.trim() || 'contact@realtylogic.co.uk'
     const from =
-      process.env.ENQUIRY_FROM_EMAIL?.trim() || 'Realty Logic <onboarding@resend.dev>'
+      process.env.ENQUIRY_FROM_EMAIL?.trim() || 'Realty Logic <contact@realtylogic.co.uk>'
     const apiKey = process.env.RESEND_API_KEY?.trim()
 
     if (apiKey) {
       const resend = new Resend(apiKey)
-      const subject =
+      const officeSubject =
         data.source === 'viewing'
           ? `Viewing enquiry: ${data.propertyTitle || data.propertySlug || 'Property'}`
           : `Website contact from ${data.name}`
 
-      const lines = [
-        `Name: ${data.name}`,
-        `Email: ${data.email}`,
-        data.phone ? `Phone: ${data.phone}` : null,
-        `Source: ${data.source}`,
-        `Listing type: ${data.listingType}`,
-        data.propertyTitle ? `Property: ${data.propertyTitle}` : null,
-        data.propertySlug ? `Slug: ${data.propertySlug}` : null,
-        data.preferredDate ? `Preferred date: ${data.preferredDate}` : null,
-        data.preferredTime ? `Preferred time: ${data.preferredTime}` : null,
-        '',
-        'Message:',
-        data.message || '(none)',
-      ]
-        .filter((line) => line !== null)
-        .join('\n')
+      const autoSubject =
+        data.source === 'viewing'
+          ? 'We received your viewing enquiry — Realty Logic'
+          : 'We received your message — Realty Logic'
 
-      const { error } = await resend.emails.send({
-        from,
-        to: [to],
-        replyTo: data.email,
-        subject,
-        text: lines,
-      })
+      const [officeResult, autoResult] = await Promise.all([
+        resend.emails.send({
+          from,
+          to: [to],
+          replyTo: data.email,
+          subject: officeSubject,
+          text: officeNotificationText(data),
+        }),
+        resend.emails.send({
+          from,
+          to: [data.email],
+          replyTo: to,
+          subject: autoSubject,
+          text: autoReplyText(data),
+        }),
+      ])
 
-      if (error) {
-        console.error('Resend error:', error)
-        // Enquiry is already saved — still return ok so the user isn't stuck
+      if (officeResult.error) {
+        console.error('Resend office notification error:', officeResult.error)
+      }
+      if (autoResult.error) {
+        console.error('Resend auto-reply error:', autoResult.error)
       }
     } else {
       console.warn('RESEND_API_KEY not set — enquiry saved to admin only')
