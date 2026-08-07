@@ -9,6 +9,10 @@ const openSans = Open_Sans({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Realty Logic UK - Property Sales & Rentals',
   description: 'Intelligent Property Solutions',
+  icons: {
+    icon: [{ url: '/favicon.png', type: 'image/png', sizes: '256x256' }],
+    apple: [{ url: '/apple-icon.png', type: 'image/png', sizes: '256x256' }],
+  },
 }
 
 export default async function RootLayout({
