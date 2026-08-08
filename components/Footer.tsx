@@ -50,6 +50,9 @@ export function Footer() {
             <Link href="/privacy-policy" className="hover:text-white">
               Privacy Policy
             </Link>
+            <Link href="/cookie-policy" className="hover:text-white">
+              Cookie Policy
+            </Link>
             <Link href="/rentals" className="hover:text-white">
               Properties to Let
             </Link>
