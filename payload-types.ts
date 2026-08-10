@@ -131,6 +131,43 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  /**
+   * Display name shown on your account
+   */
+  name?: string | null;
+  phone?: string | null;
+  /**
+   * Profile photo for your CMS account
+   */
+  profileImage?: (number | null) | Media;
+  /**
+   * Stripe Customer ID (set automatically)
+   */
+  stripeCustomerId?: string | null;
+  /**
+   * Stripe Subscription ID (set automatically)
+   */
+  stripeSubscriptionId?: string | null;
+  /**
+   * CMS subscription status (£25/month via Stripe)
+   */
+  subscriptionStatus?:
+    | (
+        | 'none'
+        | 'active'
+        | 'trialing'
+        | 'past_due'
+        | 'canceled'
+        | 'incomplete'
+        | 'incomplete_expired'
+        | 'unpaid'
+        | 'paused'
+      )
+    | null;
+  /**
+   * Current billing period end
+   */
+  subscriptionCurrentPeriodEnd?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -468,6 +505,13 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  profileImage?: T;
+  stripeCustomerId?: T;
+  stripeSubscriptionId?: T;
+  subscriptionStatus?: T;
+  subscriptionCurrentPeriodEnd?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
