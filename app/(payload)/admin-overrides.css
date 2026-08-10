@@ -94,3 +94,12 @@ label.field-label,
   color: #111111 !important;
   font-weight: 600 !important;
 }
+
+/* Keep header “Your Account” + avatar visually grouped */
+.app-header__actions-wrapper {
+  align-items: center;
+  gap: 0.35rem;
+}
+.app-header__account {
+  margin-left: 0.15rem;
+}
