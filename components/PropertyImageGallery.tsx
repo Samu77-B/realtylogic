@@ -109,21 +109,6 @@ export function PropertyImageGallery({ imageUrls, title }: PropertyImageGalleryP
 
         <WatermarkBadge className="bottom-4 right-4 sm:bottom-6 sm:right-6" />
 
-        <button
-          type="button"
-          className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 shadow-md transition hover:bg-white"
-          aria-label="Save to favourites"
-        >
-          <svg className="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
-        </button>
-
         {count > 1 && (
           <>
             <button
