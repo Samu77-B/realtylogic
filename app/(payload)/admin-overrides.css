@@ -1,5 +1,37 @@
-/* Admin panel contrast fixes — do NOT override elevation CSS variables
-   (that breaks Payload input/background colours). */
+/* Admin panel — Apple-inspired clean dark UI + collection icons.
+   Do NOT blanket-override elevation CSS variables (breaks Payload inputs). */
+
+:root {
+  --rl-admin-radius: 14px;
+  --rl-admin-radius-sm: 10px;
+  --rl-admin-accent: #0a84ff;
+  --rl-admin-accent-soft: rgba(10, 132, 255, 0.14);
+  --rl-admin-icon-size: 22px;
+  --rl-admin-nav-icon: 17px;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    system-ui, sans-serif;
+  --font-serif: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --style-radius-s: 8px;
+  --style-radius-m: 12px;
+  --style-radius-l: 16px;
+}
+
+/* Softer dark canvas (macOS Settings feel) */
+[data-theme='dark'] {
+  --theme-bg: #0c0c0e;
+  --theme-text: #f5f5f7;
+  --theme-border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] body,
+[data-theme='dark'] .template-default {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
 
 /* Collection / dashboard titles on dark theme */
 [data-theme='dark'] h1,
@@ -16,7 +48,14 @@
 [data-theme='dark'] .list-header,
 [data-theme='dark'] .render-title,
 [data-theme='dark'] .doc-header__title {
-  color: #e0e0e0 !important;
+  color: #f5f5f7 !important;
+}
+
+[data-theme='dark'] .collections__label,
+[data-theme='dark'] .dashboard h1,
+[data-theme='dark'] .dashboard h2 {
+  font-weight: 600 !important;
+  letter-spacing: -0.03em;
 }
 
 /* Form labels inside the main admin app */
@@ -79,6 +118,7 @@ label.field-label,
   border: 1px solid #9ca3af !important;
   caret-color: #111111 !important;
   opacity: 1 !important;
+  border-radius: var(--rl-admin-radius-sm) !important;
 }
 
 .login input::placeholder,
@@ -93,6 +133,7 @@ label.field-label,
 .template-minimal button[type='submit'] {
   color: #111111 !important;
   font-weight: 600 !important;
+  border-radius: 980px !important;
 }
 
 /* Keep header “Your Account” + avatar visually grouped */
@@ -102,4 +143,217 @@ label.field-label,
 }
 .app-header__account {
   margin-left: 0.15rem;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+[data-theme='dark'] .app-header {
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(12, 12, 14, 0.72) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ─── Sidebar ────────────────────────────────────────────── */
+[data-theme='dark'] .nav {
+  background: #111113 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .nav .nav__link {
+  border-radius: var(--rl-admin-radius-sm);
+  margin: 2px 8px;
+  padding: 0.55rem 0.75rem !important;
+  transition: background 160ms ease, color 160ms ease;
+  display: flex !important;
+  align-items: center;
+  gap: 0.7rem;
+  font-weight: 500;
+  font-size: 13.5px;
+}
+
+[data-theme='dark'] .nav .nav__link:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme='dark'] .nav .nav__link:has(.nav__link-indicator),
+[data-theme='dark'] .nav .nav__link.nav__link--active {
+  background: var(--rl-admin-accent-soft) !important;
+  color: #fff !important;
+}
+
+[data-theme='dark'] .nav .nav__link-indicator {
+  background: var(--rl-admin-accent) !important;
+  width: 3px !important;
+  border-radius: 2px;
+}
+
+/* ─── Dashboard cards ────────────────────────────────────── */
+[data-theme='dark'] .collections__card-list {
+  gap: 14px !important;
+}
+
+[data-theme='dark'] .dashboard .card,
+[data-theme='dark'] .collections .card {
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 0.85rem 0.5rem;
+  min-height: 7.25rem;
+  padding: 1.15rem 1.2rem !important;
+  border-radius: var(--rl-admin-radius) !important;
+  background: #1c1c1e !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 8px 24px rgba(0, 0, 0, 0.22);
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+[data-theme='dark'] .dashboard .card:hover,
+[data-theme='dark'] .collections .card:hover {
+  background: #232326 !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 12px 28px rgba(0, 0, 0, 0.28);
+  transform: translateY(-1px);
+}
+
+[data-theme='dark'] .dashboard .card__title,
+[data-theme='dark'] .collections .card__title {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+  margin: 0 !important;
+  align-self: end;
+}
+
+[data-theme='dark'] .dashboard .card__actions,
+[data-theme='dark'] .collections .card__actions {
+  grid-column: 2;
+  grid-row: 1;
+  z-index: 2;
+}
+
+[data-theme='dark'] .dashboard .card__actions .btn__icon,
+[data-theme='dark'] .collections .card__actions .btn__icon {
+  border-radius: 999px !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme='dark'] .dashboard .card__actions .btn__icon:hover,
+[data-theme='dark'] .collections .card__actions .btn__icon:hover {
+  background: var(--rl-admin-accent-soft) !important;
+  border-color: rgba(10, 132, 255, 0.45) !important;
+  color: #fff !important;
+}
+
+/* Shared icon slot on cards */
+[data-theme='dark'] .dashboard .card::before,
+[data-theme='dark'] .collections .card::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 11px;
+  background-color: var(--rl-admin-accent-soft);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: var(--rl-admin-icon-size);
+  box-shadow: inset 0 0 0 1px rgba(10, 132, 255, 0.18);
+}
+
+/* Shared icon slot on nav links */
+[data-theme='dark'] .nav .nav__link::before {
+  content: '';
+  width: var(--rl-admin-nav-icon);
+  height: var(--rl-admin-nav-icon);
+  flex-shrink: 0;
+  opacity: 0.9;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+/* ─── Icon SVGs (SF-style line icons) ─────────────────────── */
+/* Users */
+#card-users::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E");
+}
+#nav-users::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E");
+}
+
+/* Media */
+#card-media::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2.5'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpath d='M21 15l-5-5L5 21'/%3E%3C/svg%3E");
+}
+#nav-media::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2.5'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpath d='M21 15l-5-5L5 21'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2.5'/%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'/%3E%3Cpath d='M21 15l-5-5L5 21'/%3E%3C/svg%3E");
+}
+
+/* Agents */
+#card-agents::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+}
+#nav-agents::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+}
+
+/* Properties Sales */
+#card-properties-sale::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5L12 3l9 7.5'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E");
+}
+#nav-properties-sale::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5L12 3l9 7.5'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5L12 3l9 7.5'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E");
+}
+
+/* Properties Rents */
+#card-properties-rent::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='15' r='4'/%3E%3Cpath d='M10.7 12.3L21 2'/%3E%3Cpath d='M15 6l3 3'/%3E%3Cpath d='M17.5 3.5l3 3'/%3E%3C/svg%3E");
+}
+#nav-properties-rent::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='15' r='4'/%3E%3Cpath d='M10.7 12.3L21 2'/%3E%3Cpath d='M15 6l3 3'/%3E%3Cpath d='M17.5 3.5l3 3'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='15' r='4'/%3E%3Cpath d='M10.7 12.3L21 2'/%3E%3Cpath d='M15 6l3 3'/%3E%3Cpath d='M17.5 3.5l3 3'/%3E%3C/svg%3E");
+}
+
+/* Enquiries */
+#card-enquiries::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9A2.5 2.5 0 0 1 17.5 17H9l-5 4v-4.2A2.5 2.5 0 0 1 4 14.5v-9z'/%3E%3C/svg%3E");
+}
+#nav-enquiries::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9A2.5 2.5 0 0 1 17.5 17H9l-5 4v-4.2A2.5 2.5 0 0 1 4 14.5v-9z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v9A2.5 2.5 0 0 1 17.5 17H9l-5 4v-4.2A2.5 2.5 0 0 1 4 14.5v-9z'/%3E%3C/svg%3E");
+}
+
+/* Rounded inputs / tables / buttons elsewhere in admin */
+[data-theme='dark'] .template-default input:not([type='checkbox']):not([type='radio']),
+[data-theme='dark'] .template-default textarea,
+[data-theme='dark'] .template-default select,
+[data-theme='dark'] .template-default .react-select__control {
+  border-radius: var(--rl-admin-radius-sm) !important;
+}
+
+[data-theme='dark'] .btn--style-primary,
+[data-theme='dark'] .btn.btn--style-primary {
+  border-radius: 980px !important;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .table,
+[data-theme='dark'] .table table {
+  border-radius: var(--rl-admin-radius);
+  overflow: hidden;
 }
