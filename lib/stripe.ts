@@ -2,6 +2,8 @@ import Stripe from 'stripe'
 
 let stripeClient: Stripe | null = null
 
+export type BillingPlan = 'monthly' | 'yearly'
+
 export function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY
   if (!key) {
@@ -13,12 +15,24 @@ export function getStripe(): Stripe {
   return stripeClient
 }
 
-export function getStripePriceId(): string {
-  const priceId = process.env.STRIPE_PRICE_ID
-  if (!priceId) {
+export function getStripePriceId(plan: BillingPlan = 'monthly'): string {
+  if (plan === 'yearly') {
+    const yearly = process.env.STRIPE_PRICE_ID_YEARLY
+    if (!yearly) {
+      throw new Error('STRIPE_PRICE_ID_YEARLY is not set')
+    }
+    return yearly
+  }
+
+  const monthly = process.env.STRIPE_PRICE_ID
+  if (!monthly) {
     throw new Error('STRIPE_PRICE_ID is not set')
   }
-  return priceId
+  return monthly
+}
+
+export function parseBillingPlan(value: unknown): BillingPlan {
+  return value === 'yearly' ? 'yearly' : 'monthly'
 }
 
 export function getAppBaseUrl(): string {

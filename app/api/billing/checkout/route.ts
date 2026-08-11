@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getAdminUser } from '@/lib/realty-ai/auth'
-import { getAppBaseUrl, getStripe, getStripePriceId } from '@/lib/stripe'
+import { getAppBaseUrl, getStripe, getStripePriceId, parseBillingPlan } from '@/lib/stripe'
 
 export async function POST(request: Request) {
   const auth = await getAdminUser(request.headers)
@@ -11,8 +11,10 @@ export async function POST(request: Request) {
   const { payload, user } = auth
 
   try {
+    const body = (await request.json().catch(() => ({}))) as { plan?: unknown }
+    const plan = parseBillingPlan(body.plan)
     const stripe = getStripe()
-    const priceId = getStripePriceId()
+    const priceId = getStripePriceId(plan)
     const baseUrl = getAppBaseUrl()
 
     let customerId = user.stripeCustomerId || undefined
@@ -45,10 +47,12 @@ export async function POST(request: Request) {
       client_reference_id: String(user.id),
       metadata: {
         payloadUserId: String(user.id),
+        plan,
       },
       subscription_data: {
         metadata: {
           payloadUserId: String(user.id),
+          plan,
         },
       },
     })
