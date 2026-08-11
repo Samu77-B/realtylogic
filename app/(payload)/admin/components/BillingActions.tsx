@@ -65,27 +65,26 @@ export function BillingActions() {
   }
 
   return (
-    <div
-      style={{
-        border: '1px solid var(--theme-elevation-150)',
-        borderRadius: 8,
-        padding: '1rem 1.25rem',
-        marginBottom: '1rem',
-        background: 'var(--theme-elevation-50)',
-      }}
-    >
-      <div style={{ fontWeight: 600, marginBottom: 6 }}>CMS subscription</div>
-      <p style={{ margin: '0 0 0.75rem', color: 'var(--theme-elevation-800)', fontSize: 14 }}>
-        Choose monthly (£25) or yearly (£250 — 2 months free). Status:{' '}
-        <strong>{status && status !== 'none' ? status.replace(/_/g, ' ') : 'not subscribed'}</strong>
-        {periodLabel ? ` · renews/ends ${periodLabel}` : ''}
-      </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+    <div className="rl-billing">
+      <div className="rl-billing__header">
+        <span className="rl-billing__icon" aria-hidden />
+        <div>
+          <div className="rl-billing__title">CMS subscription</div>
+          <p className="rl-billing__copy">
+            Choose monthly (£25) or yearly (£250 — 2 months free). Status:{' '}
+            <strong>
+              {status && status !== 'none' ? status.replace(/_/g, ' ') : 'not subscribed'}
+            </strong>
+            {periodLabel ? ` · renews/ends ${periodLabel}` : ''}
+          </p>
+        </div>
+      </div>
+      <div className="rl-billing__actions">
         {!isActive && (
           <>
             <button
               type="button"
-              className="btn btn--style-primary btn--size-medium"
+              className="btn btn--style-primary btn--size-medium rl-billing__btn"
               disabled={busy !== null}
               onClick={() => onSubscribe('monthly')}
             >
@@ -93,7 +92,7 @@ export function BillingActions() {
             </button>
             <button
               type="button"
-              className="btn btn--style-primary btn--size-medium"
+              className="btn btn--style-primary btn--size-medium rl-billing__btn"
               disabled={busy !== null}
               onClick={() => onSubscribe('yearly')}
             >
@@ -104,7 +103,7 @@ export function BillingActions() {
         {customerId && (
           <button
             type="button"
-            className="btn btn--style-secondary btn--size-medium"
+            className="btn btn--style-secondary btn--size-medium rl-billing__btn rl-billing__btn--ghost"
             disabled={busy !== null}
             onClick={onManage}
           >
@@ -112,9 +111,7 @@ export function BillingActions() {
           </button>
         )}
       </div>
-      {error && (
-        <p style={{ color: 'var(--theme-error-500)', margin: '0.75rem 0 0', fontSize: 13 }}>{error}</p>
-      )}
+      {error && <p className="rl-billing__error">{error}</p>}
     </div>
   )
 }

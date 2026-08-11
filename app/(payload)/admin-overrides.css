@@ -357,3 +357,218 @@ label.field-label,
   border-radius: var(--rl-admin-radius);
   overflow: hidden;
 }
+
+/* ─── Account / document edit (Apple Settings feel) ───────── */
+[data-theme='dark'] .doc-header__title {
+  font-weight: 600 !important;
+  letter-spacing: -0.03em;
+}
+
+[data-theme='dark'] .doc-controls__controls .btn--style-primary,
+[data-theme='dark'] .doc-header .btn--style-primary {
+  background: var(--rl-admin-accent) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+  border-radius: 980px !important;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .doc-controls__controls .btn--style-primary:hover,
+[data-theme='dark'] .doc-header .btn--style-primary:hover {
+  filter: brightness(1.08);
+}
+
+[data-theme='dark'] .document-fields__edit {
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--rl-admin-radius);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 10px 28px rgba(0, 0, 0, 0.22);
+  padding-top: 1.35rem !important;
+  padding-bottom: 1.5rem !important;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme='dark'] .template-default .field-type {
+  margin-bottom: 1.35rem;
+}
+
+[data-theme='dark'] .template-default label.field-label,
+[data-theme='dark'] .template-default .field-type .field-label,
+[data-theme='dark'] .template-default .field-label {
+  color: #f5f5f7 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.45rem !important;
+}
+
+[data-theme='dark'] .template-default .field-description,
+[data-theme='dark'] .template-default .field-type .field-description {
+  color: rgba(245, 245, 247, 0.55) !important;
+  font-size: 12.5px !important;
+}
+
+[data-theme='dark'] .template-default input:not([type='checkbox']):not([type='radio']),
+[data-theme='dark'] .template-default textarea,
+[data-theme='dark'] .template-default select {
+  background: #2c2c2e !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f5f5f7 !important;
+  border-radius: var(--rl-admin-radius-sm) !important;
+  min-height: 2.55rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+[data-theme='dark'] .template-default input:not([type='checkbox']):not([type='radio']):focus,
+[data-theme='dark'] .template-default textarea:focus,
+[data-theme='dark'] .template-default select:focus {
+  border-color: rgba(10, 132, 255, 0.65) !important;
+  box-shadow: 0 0 0 3px var(--rl-admin-accent-soft) !important;
+  outline: none !important;
+  background: #323234 !important;
+}
+
+[data-theme='dark'] .template-default input[disabled],
+[data-theme='dark'] .template-default input:read-only {
+  opacity: 0.72;
+  background: #252528 !important;
+}
+
+/* Secondary / outline buttons (Change password, Force unlock, etc.) */
+[data-theme='dark'] .template-default .btn--style-secondary,
+[data-theme='dark'] .template-default .btn--style-pill,
+[data-theme='dark'] .template-default .btn.btn--style-secondary {
+  border-radius: 980px !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: transparent !important;
+  color: #f5f5f7 !important;
+  font-weight: 550;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+[data-theme='dark'] .template-default .btn--style-secondary:hover,
+[data-theme='dark'] .template-default .btn.btn--style-secondary:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Profile image / upload dropzone */
+[data-theme='dark'] .file-field,
+[data-theme='dark'] .upload,
+[data-theme='dark'] .field-type.upload .upload__toggler,
+[data-theme='dark'] .dropzone {
+  border-radius: var(--rl-admin-radius) !important;
+}
+
+[data-theme='dark'] .file-field,
+[data-theme='dark'] .field-type.upload .dropzone,
+[data-theme='dark'] .dropzone {
+  background: #232326 !important;
+  border: 1.5px dashed rgba(255, 255, 255, 0.16) !important;
+  box-shadow: none !important;
+}
+
+[data-theme='dark'] .dropzone:hover,
+[data-theme='dark'] .field-type.upload .dropzone:hover {
+  border-color: rgba(10, 132, 255, 0.45) !important;
+  background: rgba(10, 132, 255, 0.06) !important;
+}
+
+[data-theme='dark'] .file-field__orText,
+[data-theme='dark'] .dropzone__label {
+  color: rgba(245, 245, 247, 0.5) !important;
+}
+
+/* Auth account buttons under email */
+[data-theme='dark'] .auth-fields__api-key-actions,
+[data-theme='dark'] .auth-fields,
+[data-theme='dark'] .email-and-password {
+  gap: 0.65rem;
+}
+
+/* ─── Billing card on account page ────────────────────────── */
+.rl-billing {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--rl-admin-radius);
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: #232326;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 8px 22px rgba(0, 0, 0, 0.18);
+}
+
+.rl-billing__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.rl-billing__icon {
+  width: 2.35rem;
+  height: 2.35rem;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background-color: var(--rl-admin-accent-soft);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2.5'/%3E%3Cpath d='M2 10h20'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px;
+  box-shadow: inset 0 0 0 1px rgba(10, 132, 255, 0.18);
+}
+
+.rl-billing__title {
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: #f5f5f7;
+  margin-bottom: 0.25rem;
+}
+
+.rl-billing__copy {
+  margin: 0;
+  color: rgba(245, 245, 247, 0.62);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.rl-billing__copy strong {
+  color: #f5f5f7;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.rl-billing__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.rl-billing__btn {
+  border-radius: 980px !important;
+  font-weight: 600 !important;
+}
+
+.rl-billing__btn.btn--style-primary {
+  background: var(--rl-admin-accent) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+
+.rl-billing__btn--ghost {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #f5f5f7 !important;
+}
+
+.rl-billing__btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.rl-billing__error {
+  color: #ff453a;
+  margin: 0.85rem 0 0;
+  font-size: 13px;
+}
