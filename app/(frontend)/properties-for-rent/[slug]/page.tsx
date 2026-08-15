@@ -12,6 +12,7 @@ import { PropertyMap } from '@/components/PropertyMap'
 import { WeChatContactCard } from '@/components/WeChatContactCard'
 
 import { getMediaUrl, getPropertyMainImageUrl } from '@/lib/media/getMediaUrl'
+import { FormattedText } from '@/components/FormattedText'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -122,11 +123,15 @@ export default async function PropertyRentPage({ params }: Props) {
                   )}
                 </div>
 
-                <p className="mt-6 text-gray-600">
-                  {property.introText ||
-                    property.description ||
-                    'This property is beautifully presented and offers excellent accommodation in a prime location.'}
-                </p>
+                <div className="mt-6">
+                  <FormattedText
+                    text={
+                      property.introText ||
+                      property.description ||
+                      'This property is beautifully presented and offers excellent accommodation in a prime location.'
+                    }
+                  />
+                </div>
 
                 {featuresList.length > 0 && (
                   <ul className="mt-4 list-disc space-y-1 pl-5 text-gray-600">
@@ -158,11 +163,15 @@ export default async function PropertyRentPage({ params }: Props) {
                 {/* Detailed description */}
                 <div className="mt-8">
                   <h2 className="text-xl font-semibold text-gray-900">Description</h2>
-                  <p className="mt-2 text-gray-600">
-                    {property.description ||
-                      property.introText ||
-                      'Boasting a generous size and prime location, this property offers excellent accommodation. The property is fully furnished and includes all modern amenities. Perfect for professionals or families seeking a high-quality rental in a sought-after area.'}
-                  </p>
+                  <div className="mt-2">
+                    <FormattedText
+                      text={
+                        property.description ||
+                        property.introText ||
+                        'Boasting a generous size and prime location, this property offers excellent accommodation. The property is fully furnished and includes all modern amenities. Perfect for professionals or families seeking a high-quality rental in a sought-after area.'
+                      }
+                    />
+                  </div>
                 </div>
 
                 {/* Tenant preferences */}
