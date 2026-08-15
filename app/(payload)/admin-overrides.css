@@ -462,7 +462,6 @@ label.field-label,
   border-radius: var(--rl-admin-radius) !important;
 }
 
-[data-theme='dark'] .file-field,
 [data-theme='dark'] .field-type.upload .dropzone,
 [data-theme='dark'] .dropzone {
   background: #232326 !important;

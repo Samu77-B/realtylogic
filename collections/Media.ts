@@ -23,7 +23,10 @@ export const Media: CollectionConfig = {
       (({ doc }) => {
         if (!doc) return doc
         const fixed = getMediaUrl(doc)
-        if (fixed) doc.url = fixed
+        if (fixed) {
+          doc.url = fixed
+          doc.thumbnailURL = fixed
+        }
         return doc
       }) as CollectionAfterReadHook,
     ],

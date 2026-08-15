@@ -4,7 +4,7 @@ import { getPayloadClient } from '@/lib/payload'
 export const dynamic = 'force-dynamic'
 import { PropertyCard } from '@/components/PropertyCard'
 import { Hero } from '@/components/Hero'
-import { getMediaUrl } from '@/lib/media/getMediaUrl'
+import { getPropertyMainImageUrl } from '@/lib/media/getMediaUrl'
 
 export default async function HomePage() {
   const payload = await getPayloadClient()
@@ -65,12 +65,7 @@ export default async function HomePage() {
                   price={property.monthlyRent || ''}
                   bedrooms={property.bedrooms ?? undefined}
                   bathrooms={property.bathrooms ?? undefined}
-                  imageUrl={
-                    property.mainImageUrl ??
-                    (typeof property.mainImage === 'object'
-                      ? getMediaUrl(property.mainImage) ?? undefined
-                      : undefined)
-                  }
+                  imageUrl={getPropertyMainImageUrl(property) ?? undefined}
                   href={`/properties-for-rent/${property.slug}`}
                   showNewBadge
                   isRental
@@ -101,12 +96,7 @@ export default async function HomePage() {
                   price={property.price || ''}
                   bedrooms={property.bedrooms ?? undefined}
                   bathrooms={property.bathrooms ?? undefined}
-                  imageUrl={
-                    property.mainImageUrl ??
-                    (typeof property.mainImage === 'object'
-                      ? getMediaUrl(property.mainImage) ?? undefined
-                      : undefined)
-                  }
+                  imageUrl={getPropertyMainImageUrl(property) ?? undefined}
                   href={`/properties-for-sale/${property.slug}`}
                   showNewBadge
                   isRental={false}

@@ -1,7 +1,7 @@
 import { getPayloadClient } from '@/lib/payload'
 import { PropertyCard } from '@/components/PropertyCard'
 import { ListingsBanner } from '@/components/ListingsBanner'
-import { getMediaUrl } from '@/lib/media/getMediaUrl'
+import { getPropertyMainImageUrl } from '@/lib/media/getMediaUrl'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,10 +59,7 @@ export default async function RentalsPage({ searchParams }: Props) {
               price={property.monthlyRent || ''}
               bedrooms={property.bedrooms ?? undefined}
               bathrooms={property.bathrooms ?? undefined}
-              imageUrl={
-                property.mainImageUrl ??
-                (typeof property.mainImage === 'object' ? getMediaUrl(property.mainImage) ?? undefined : undefined)
-              }
+              imageUrl={getPropertyMainImageUrl(property) ?? undefined}
               href={`/properties-for-rent/${property.slug}`}
               showNewBadge={property.featuredOnFrontPage ?? false}
               isRental

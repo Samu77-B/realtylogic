@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { geocodeAddressHook } from '@/lib/hooks/geocodeAddressHook'
+import { slugifyPropertyHook } from '@/lib/hooks/slugifyPropertyHook'
 
 export const PropertiesSale: CollectionConfig = {
   slug: 'properties-sale',
@@ -156,6 +157,6 @@ export const PropertiesSale: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [geocodeAddressHook],
+    beforeChange: [slugifyPropertyHook, geocodeAddressHook],
   },
 }

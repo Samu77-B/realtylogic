@@ -11,7 +11,7 @@ import { ShareSection } from '@/components/ShareSection'
 import { PropertyMap } from '@/components/PropertyMap'
 import { WeChatContactCard } from '@/components/WeChatContactCard'
 
-import { getMediaUrl } from '@/lib/media/getMediaUrl'
+import { getMediaUrl, getPropertyMainImageUrl } from '@/lib/media/getMediaUrl'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -44,11 +44,7 @@ export default async function PropertySalePage({ params }: Props) {
   const property = docs[0]
   if (!property) notFound()
 
-  const mainImageUrl =
-    property.mainImageUrl ??
-    (typeof property.mainImage === 'object' && property.mainImage
-      ? getMediaUrl(property.mainImage)
-      : null)
+  const mainImageUrl = getPropertyMainImageUrl(property)
 
   const imageUrls: string[] = []
   if (mainImageUrl) imageUrls.push(mainImageUrl)
