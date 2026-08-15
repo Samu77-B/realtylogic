@@ -1,14 +1,33 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type ShareSectionProps = {
   propertyTitle: string
   propertyPath: string
 }
 
+async function copyToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text)
+    return
+  }
+
+  const field = document.createElement('textarea')
+  field.value = text
+  field.setAttribute('readonly', '')
+  field.style.position = 'fixed'
+  field.style.left = '-9999px'
+  document.body.appendChild(field)
+  field.select()
+  document.execCommand('copy')
+  document.body.removeChild(field)
+}
+
 export function ShareSection({ propertyTitle, propertyPath }: ShareSectionProps) {
   const [url, setUrl] = useState('')
+  const [copied, setCopied] = useState(false)
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -16,12 +35,30 @@ export function ShareSection({ propertyTitle, propertyPath }: ShareSectionProps)
     }
   }, [propertyPath])
 
+  useEffect(() => {
+    return () => {
+      if (copiedTimer.current) clearTimeout(copiedTimer.current)
+    }
+  }, [])
+
   const shareText = `${propertyTitle} ${url}`
+
+  const onCopyLink = async () => {
+    if (!url) return
+    try {
+      await copyToClipboard(url)
+      setCopied(true)
+      if (copiedTimer.current) clearTimeout(copiedTimer.current)
+      copiedTimer.current = setTimeout(() => setCopied(false), 2500)
+    } catch {
+      // Clipboard blocked — keep the button as Copy link
+    }
+  }
 
   return (
     <div className="mt-8 border-t border-gray-200 pt-8">
       <h3 className="text-sm font-semibold text-gray-900">Share with...</h3>
-      <div className="mt-3 flex flex-wrap gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
         <a
           href={url ? `https://wa.me/?text=${encodeURIComponent(shareText)}` : '#'}
           target="_blank"
@@ -66,15 +103,20 @@ export function ShareSection({ propertyTitle, propertyPath }: ShareSectionProps)
         </a>
         <button
           type="button"
-          onClick={() => {
-            if (url && navigator.clipboard) {
-              navigator.clipboard.writeText(url)
-            }
-          }}
+          onClick={() => void onCopyLink()}
           className="text-sm text-gray-600 underline hover:text-gray-800"
         >
           Copy link
         </button>
+        <span
+          role="status"
+          aria-live="polite"
+          className={`text-sm font-medium text-emerald-700 transition-opacity ${
+            copied ? 'opacity-100' : 'pointer-events-none opacity-0'
+          }`}
+        >
+          Link copied
+        </span>
       </div>
     </div>
   )
