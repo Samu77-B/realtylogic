@@ -2,26 +2,29 @@ import { put } from '@vercel/blob'
 import { NextResponse } from 'next/server'
 import sharp from 'sharp'
 import { getAdminUser } from '@/lib/realty-ai/auth'
+import { jsonError, rateLimit } from '@/lib/security'
 
 export const maxDuration = 60
 export const runtime = 'nodejs'
 
 const MAX_BYTES = 8 * 1024 * 1024
+const ALLOWED_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/avif'])
 
 export async function POST(request: Request) {
   const auth = await getAdminUser(request.headers)
   if (!auth) {
-    return NextResponse.json({ error: 'Please log in at /admin first.' }, { status: 401 })
+    return jsonError(401, 'Please log in at /admin first.')
+  }
+
+  if (!rateLimit(`upload:${auth.user.id}`, 40, 60 * 1000)) {
+    return jsonError(429, 'Too many uploads. Please wait a moment.')
   }
 
   const token = process.env.BLOB_READ_WRITE_TOKEN
   if (!token) {
-    return NextResponse.json(
-      {
-        error:
-          'BLOB_READ_WRITE_TOKEN is not configured. Link Vercel Blob to this project and redeploy.',
-      },
-      { status: 500 },
+    return jsonError(
+      500,
+      'BLOB_READ_WRITE_TOKEN is not configured. Link Vercel Blob to this project and redeploy.',
     )
   }
 
@@ -29,24 +32,22 @@ export async function POST(request: Request) {
   try {
     form = await request.formData()
   } catch {
-    return NextResponse.json({ error: 'Invalid form data' }, { status: 400 })
+    return jsonError(400, 'Invalid form data')
   }
 
   const file = form.get('file')
   if (!(file instanceof File)) {
-    return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+    return jsonError(400, 'No file provided')
   }
 
-  if (!file.type.startsWith('image/')) {
-    return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 })
+  if (!ALLOWED_TYPES.has(file.type)) {
+    return jsonError(400, 'Only JPEG, PNG, WebP, GIF, or AVIF images are allowed')
   }
 
   if (file.size > MAX_BYTES) {
-    return NextResponse.json(
-      {
-        error: `Image is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Please use files under 8MB.`,
-      },
-      { status: 413 },
+    return jsonError(
+      413,
+      `Image is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Please use files under 8MB.`,
     )
   }
 
@@ -104,10 +105,6 @@ export async function POST(request: Request) {
       alt: doc.alt,
     })
   } catch (error) {
-    console.error('Media upload-one failed:', error)
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Upload failed' },
-      { status: 500 },
-    )
+    return jsonError(500, 'Upload failed', error)
   }
 }

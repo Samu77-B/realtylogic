@@ -32,10 +32,9 @@ npm run import:csv
 
 Alternatively, run `npm run dev` and visit `http://localhost:3000/admin` to create the schema and your first admin user manually, then run `npm run import:csv`.
 
-5. Default admin (when using `npm run init:db`):
+5. First admin (when using `npm run init:db`):
 
-   - Email: `admin@realtylogic.co.uk` (override with `ADMIN_EMAIL` in `.env`)
-   - Password: `ChangeMe123!` (override with `ADMIN_PASSWORD` in `.env`)
+   Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` (12+ characters) in `.env`. There is no default password.
 
 6. Import CSV data (run after creating admin user):
 

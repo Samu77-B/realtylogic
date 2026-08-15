@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import { getAdminUser } from '@/lib/realty-ai/auth'
 import { propertyDraftSchema, slugifyTitle } from '@/lib/realty-ai/schema'
+import { jsonError } from '@/lib/security'
 
 export const maxDuration = 60
 
 export async function POST(request: Request) {
   const auth = await getAdminUser(request.headers)
   if (!auth) {
-    return NextResponse.json({ error: 'Please log in at /admin first.' }, { status: 401 })
+    return jsonError(401, 'Please log in at /admin first.')
   }
 
   const { payload } = auth
@@ -16,12 +17,12 @@ export async function POST(request: Request) {
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+    return jsonError(400, 'Invalid JSON')
   }
 
   const parsed = propertyDraftSchema.safeParse((body as { draft?: unknown })?.draft ?? body)
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Draft is incomplete or invalid.', details: parsed.error.flatten() }, { status: 400 })
+    return jsonError(400, 'Draft is incomplete or invalid.')
   }
 
   const draft = parsed.data
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
         limit: 1,
       })
       if (existing.docs.length === 0) return candidate
+      if (i > 50) throw new Error('Could not generate a unique slug')
       candidate = `${slug}-${i}`
       i += 1
     }
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
   try {
     if (draft.listingType === 'sale') {
       if (!draft.price?.trim()) {
-        return NextResponse.json({ error: 'Sale listings need a price before publishing.' }, { status: 400 })
+        return jsonError(400, 'Sale listings need a price before publishing.')
       }
       const slug = await uniqueSlug('properties-sale', baseSlug)
       const doc = await payload.create({
@@ -78,7 +80,7 @@ export async function POST(request: Request) {
     }
 
     if (!draft.monthlyRent?.trim()) {
-      return NextResponse.json({ error: 'Rentals need a monthly rent before publishing.' }, { status: 400 })
+      return jsonError(400, 'Rentals need a monthly rent before publishing.')
     }
 
     const slug = await uniqueSlug('properties-rent', baseSlug)
@@ -120,10 +122,6 @@ export async function POST(request: Request) {
       publicPath: `/properties-for-rent/${doc.slug}`,
     })
   } catch (error) {
-    console.error('Realty AI publish failed:', error)
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to publish property.' },
-      { status: 500 },
-    )
+    return jsonError(500, 'Failed to publish property.', error)
   }
 }

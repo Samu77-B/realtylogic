@@ -1,7 +1,9 @@
 import { generateObject } from 'ai'
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getAdminUser } from '@/lib/realty-ai/auth'
 import { propertyDraftSchema, type PropertyDraft } from '@/lib/realty-ai/schema'
+import { jsonError, rateLimit } from '@/lib/security'
 
 export const maxDuration = 60
 
@@ -17,35 +19,50 @@ Rules:
 - Keep assistantMessage short, friendly, and actionable (what you captured + what is still missing).
 - If the manager says they want to publish, still return the best current draft; publishing is handled separately.`
 
-type Body = {
-  messages?: { role: 'user' | 'assistant'; content: string }[]
-  currentDraft?: Partial<PropertyDraft> | null
-}
+const extractBodySchema = z.object({
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().max(8000),
+      }),
+    )
+    .min(1)
+    .max(40),
+  currentDraft: propertyDraftSchema.partial().nullable().optional(),
+})
 
 export async function POST(request: Request) {
   const auth = await getAdminUser(request.headers)
   if (!auth) {
-    return NextResponse.json({ error: 'Please log in at /admin first.' }, { status: 401 })
+    return jsonError(401, 'Please log in at /admin first.')
   }
 
-  let body: Body
+  if (!rateLimit(`realty-ai:${auth.user.id}`, 20, 60 * 1000)) {
+    return jsonError(429, 'Too many AI requests. Please wait a moment.')
+  }
+
+  let body: unknown
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+    return jsonError(400, 'Invalid JSON')
   }
 
-  const messages = body.messages ?? []
-  if (messages.length === 0) {
-    return NextResponse.json({ error: 'No messages provided' }, { status: 400 })
+  const parsed = extractBodySchema.safeParse(body)
+  if (!parsed.success) {
+    return jsonError(400, 'Invalid request. Keep notes shorter and try again.')
   }
+
+  const messages = parsed.data.messages
+  const currentDraft = parsed.data.currentDraft as Partial<PropertyDraft> | null | undefined
 
   const transcript = messages
     .map((m) => `${m.role === 'user' ? 'Manager' : 'Realty AI'}: ${m.content}`)
     .join('\n')
 
-  const current = body.currentDraft
-    ? `\n\nCurrent draft so far (update/merge with new details):\n${JSON.stringify(body.currentDraft, null, 2)}`
+  const current = currentDraft
+    ? `\n\nCurrent draft so far (update/merge with new details):\n${JSON.stringify(currentDraft, null, 2)}`
     : ''
 
   try {
@@ -62,6 +79,6 @@ export async function POST(request: Request) {
       error instanceof Error && /API key|Unauthorized|gateway/i.test(error.message)
         ? 'AI is not configured yet. Add AI Gateway access on Vercel (or AI_GATEWAY_API_KEY locally).'
         : 'Could not process those details. Please try again.'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return jsonError(500, message)
   }
 }

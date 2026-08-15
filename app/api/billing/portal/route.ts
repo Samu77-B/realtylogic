@@ -1,20 +1,18 @@
 import { NextResponse } from 'next/server'
 import { getAdminUser } from '@/lib/realty-ai/auth'
 import { getAppBaseUrl, getStripe } from '@/lib/stripe'
+import { jsonError } from '@/lib/security'
 
 export async function POST(request: Request) {
   const auth = await getAdminUser(request.headers)
   if (!auth) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return jsonError(401, 'Unauthorized')
   }
 
   const { user } = auth
 
   if (!user.stripeCustomerId) {
-    return NextResponse.json(
-      { error: 'No Stripe customer yet. Subscribe first.' },
-      { status: 400 },
-    )
+    return jsonError(400, 'No Stripe customer yet. Subscribe first.')
   }
 
   try {
@@ -28,8 +26,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url })
   } catch (err) {
-    console.error('[billing/portal]', err)
-    const message = err instanceof Error ? err.message : 'Portal session failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return jsonError(500, 'Portal session failed', err)
   }
 }

@@ -1,4 +1,7 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, FieldAccess } from 'payload'
+
+/** Billing fields are set only by Stripe webhooks / checkout (overrideAccess). */
+const billingWriteLocked: FieldAccess = () => false
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -6,11 +9,16 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     defaultColumns: ['email', 'name', 'subscriptionStatus', 'updatedAt'],
   },
-  auth: true,
+  auth: {
+    maxLoginAttempts: 5,
+    lockTime: 15 * 60 * 1000,
+    tokenExpiration: 60 * 60 * 8,
+  },
   access: {
     read: ({ req: { user } }) => Boolean(user),
     create: ({ req: { user } }) => Boolean(user),
-    update: ({ req: { user } }) => Boolean(user),
+    // Staff can edit their own profile; billing fields are locked separately
+    update: ({ req: { user } }) => (user ? { id: { equals: user.id } } : false),
     delete: ({ req: { user } }) => Boolean(user),
   },
   fields: [
@@ -45,6 +53,10 @@ export const Users: CollectionConfig = {
     {
       name: 'stripeCustomerId',
       type: 'text',
+      access: {
+        create: billingWriteLocked,
+        update: billingWriteLocked,
+      },
       admin: {
         readOnly: true,
         description: 'Stripe Customer ID (set automatically)',
@@ -53,6 +65,10 @@ export const Users: CollectionConfig = {
     {
       name: 'stripeSubscriptionId',
       type: 'text',
+      access: {
+        create: billingWriteLocked,
+        update: billingWriteLocked,
+      },
       admin: {
         readOnly: true,
         description: 'Stripe Subscription ID (set automatically)',
@@ -62,6 +78,10 @@ export const Users: CollectionConfig = {
       name: 'subscriptionStatus',
       type: 'select',
       defaultValue: 'none',
+      access: {
+        create: billingWriteLocked,
+        update: billingWriteLocked,
+      },
       options: [
         { label: 'None', value: 'none' },
         { label: 'Active', value: 'active' },
@@ -81,6 +101,10 @@ export const Users: CollectionConfig = {
     {
       name: 'subscriptionCurrentPeriodEnd',
       type: 'date',
+      access: {
+        create: billingWriteLocked,
+        update: billingWriteLocked,
+      },
       admin: {
         readOnly: true,
         date: {

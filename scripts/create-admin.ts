@@ -22,6 +22,9 @@ async function main() {
   if (!email || !password) {
     throw new Error('Set ADMIN_EMAIL and ADMIN_PASSWORD environment variables.')
   }
+  if (password.length < 12) {
+    throw new Error('ADMIN_PASSWORD must be at least 12 characters.')
+  }
   if (!process.env.DATABASE_URI) {
     throw new Error('DATABASE_URI is not set')
   }

@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { getAdminUser } from '@/lib/realty-ai/auth'
 import { getAppBaseUrl, getStripe, getStripePriceId, parseBillingPlan } from '@/lib/stripe'
+import { jsonError } from '@/lib/security'
 
 export async function POST(request: Request) {
   const auth = await getAdminUser(request.headers)
   if (!auth) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return jsonError(401, 'Unauthorized')
   }
 
   const { payload, user } = auth
@@ -58,13 +59,11 @@ export async function POST(request: Request) {
     })
 
     if (!session.url) {
-      return NextResponse.json({ error: 'Stripe did not return a checkout URL' }, { status: 500 })
+      return jsonError(500, 'Stripe did not return a checkout URL')
     }
 
     return NextResponse.json({ url: session.url })
   } catch (err) {
-    console.error('[billing/checkout]', err)
-    const message = err instanceof Error ? err.message : 'Checkout failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return jsonError(500, 'Checkout failed', err)
   }
 }

@@ -6,6 +6,12 @@
 import './load-env-first'
 
 async function main() {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_ADMIN_RESET !== 'true') {
+    throw new Error(
+      'reset-admin is blocked in production. Set ALLOW_ADMIN_RESET=true only if you intend to delete all CMS users.',
+    )
+  }
+
   const [{ getPayload }, { default: config }] = await Promise.all([
     import('payload'),
     import('../payload.config'),

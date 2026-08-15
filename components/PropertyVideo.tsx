@@ -7,21 +7,40 @@ function getEmbedUrl(url: string): { type: 'youtube' | 'vimeo' | 'direct'; src: 
   const trimmed = url.trim()
   if (!trimmed) return null
 
-  // YouTube: watch?v=ID, youtu.be/ID, youtube.com/embed/ID
-  const ytMatch = trimmed.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/)
-  if (ytMatch) {
-    return { type: 'youtube', src: `https://www.youtube.com/embed/${ytMatch[1]}` }
+  let parsed: URL
+  try {
+    parsed = trimmed.includes('://') ? new URL(trimmed) : new URL(`https://${trimmed}`)
+  } catch {
+    return null
   }
 
-  // Vimeo: vimeo.com/ID, player.vimeo.com/video/ID
-  const vimeoMatch = trimmed.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/)
-  if (vimeoMatch) {
-    return { type: 'vimeo', src: `https://player.vimeo.com/video/${vimeoMatch[1]}` }
+  const host = parsed.hostname.replace(/^www\./, '').toLowerCase()
+
+  if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
+    const fromQuery = parsed.searchParams.get('v')
+    const fromPath = parsed.pathname.split('/').filter(Boolean).pop()
+    const id = fromQuery || fromPath
+    if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) {
+      return { type: 'youtube', src: `https://www.youtube.com/embed/${id}` }
+    }
   }
 
-  // Direct video URL
-  if (/\.(mp4|webm|ogg)(\?|$)/i.test(trimmed) || trimmed.startsWith('http')) {
-    return { type: 'direct', src: trimmed }
+  if (host === 'youtu.be') {
+    const id = parsed.pathname.split('/').filter(Boolean)[0]
+    if (id && /^[a-zA-Z0-9_-]{11}$/.test(id)) {
+      return { type: 'youtube', src: `https://www.youtube.com/embed/${id}` }
+    }
+  }
+
+  if (host === 'vimeo.com' || host === 'player.vimeo.com') {
+    const id = parsed.pathname.split('/').filter((part) => /^\d+$/.test(part)).pop()
+    if (id) {
+      return { type: 'vimeo', src: `https://player.vimeo.com/video/${id}` }
+    }
+  }
+
+  if (parsed.protocol === 'https:' && /\.(mp4|webm|ogg)$/i.test(parsed.pathname)) {
+    return { type: 'direct', src: parsed.toString() }
   }
 
   return null
@@ -59,6 +78,7 @@ export function PropertyVideo({ videoUrl, title }: PropertyVideoProps) {
           width="100%"
           height="100%"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          referrerPolicy="strict-origin-when-cross-origin"
           allowFullScreen
           className="h-full w-full"
         />

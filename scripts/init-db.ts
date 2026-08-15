@@ -45,8 +45,17 @@ async function main() {
     return
   }
 
-  const email = process.env.ADMIN_EMAIL || 'admin@realtylogic.co.uk'
-  const password = process.env.ADMIN_PASSWORD || 'ChangeMe123!'
+  const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase()
+  const password = process.env.ADMIN_PASSWORD || ''
+
+  if (!email || !password) {
+    throw new Error(
+      'Set ADMIN_EMAIL and ADMIN_PASSWORD in .env before running init:db. Do not use a default password.',
+    )
+  }
+  if (password.length < 12) {
+    throw new Error('ADMIN_PASSWORD must be at least 12 characters.')
+  }
 
   await payload.create({
     collection: 'users',
@@ -57,7 +66,7 @@ async function main() {
   })
 
   console.log(`Created admin user: ${email}`)
-  console.log('Change the password after first login at /admin.')
+  console.log('Store the password in a password manager. You can sign in at /admin.')
 }
 
 main().catch((err) => {

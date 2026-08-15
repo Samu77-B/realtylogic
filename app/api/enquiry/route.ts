@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Resend } from 'resend'
 import { getPayloadClient } from '@/lib/payload'
+import { clientIp, jsonError, rateLimit } from '@/lib/security'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
@@ -88,17 +89,21 @@ function autoReplyText(data: z.infer<typeof enquirySchema>): string {
 }
 
 export async function POST(request: Request) {
+  if (!rateLimit(`enquiry:${clientIp(request)}`, 8, 15 * 60 * 1000)) {
+    return jsonError(429, 'Too many enquiries. Please wait a few minutes and try again.')
+  }
+
   let body: unknown
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    return jsonError(400, 'Invalid JSON body')
   }
 
   const parsed = enquirySchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Please check the form fields and try again.', details: parsed.error.flatten() },
+      { error: 'Please check the form fields and try again.' },
       { status: 400 },
     )
   }
@@ -175,10 +180,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error('Enquiry failed:', error)
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Could not send enquiry' },
-      { status: 500 },
-    )
+    return jsonError(500, 'Could not send enquiry', error)
   }
 }

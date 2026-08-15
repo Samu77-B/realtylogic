@@ -13,6 +13,7 @@ import { PropertiesSale } from './collections/PropertiesSale'
 import { PropertiesRent } from './collections/PropertiesRent'
 import { Enquiries } from './collections/Enquiries'
 import { generateBlobFileUrl } from './lib/media/generateBlobFileUrl'
+import { getAllowedOrigins, getPayloadSecret } from './lib/security'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -45,7 +46,12 @@ export default buildConfig({
   },
   collections: [Users, Media, Agents, PropertiesSale, PropertiesRent, Enquiries],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || 'change-me-in-production',
+  secret: getPayloadSecret(),
+  graphQL: {
+    disable: true,
+  },
+  cors: getAllowedOrigins(),
+  csrf: getAllowedOrigins(),
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
@@ -57,7 +63,8 @@ export default buildConfig({
       connectionTimeoutMillis: 30000,
       idleTimeoutMillis: 20000,
     },
-    push: process.env.PAYLOAD_DB_PUSH === 'true',
+    // Never auto-push schema in production — use migrations / scripts instead
+    push: process.env.NODE_ENV !== 'production' && process.env.PAYLOAD_DB_PUSH === 'true',
   }),
   plugins: [
     vercelBlobStorage({
