@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { geocodeAddressHook } from '@/lib/hooks/geocodeAddressHook'
 import { slugifyPropertyHook } from '@/lib/hooks/slugifyPropertyHook'
+import { putNewPropertyFirstHook } from '@/lib/hooks/putNewPropertyFirstHook'
 
 export const PropertiesRent: CollectionConfig = {
   slug: 'properties-rent',
@@ -218,6 +219,6 @@ export const PropertiesRent: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeChange: [slugifyPropertyHook, geocodeAddressHook],
+    beforeChange: [putNewPropertyFirstHook('properties-rent'), slugifyPropertyHook, geocodeAddressHook],
   },
 }
