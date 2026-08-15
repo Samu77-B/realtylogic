@@ -12,6 +12,7 @@ import { Agents } from './collections/Agents'
 import { PropertiesSale } from './collections/PropertiesSale'
 import { PropertiesRent } from './collections/PropertiesRent'
 import { Enquiries } from './collections/Enquiries'
+import { generateBlobFileUrl } from './lib/media/generateBlobFileUrl'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -62,13 +63,12 @@ export default buildConfig({
     vercelBlobStorage({
       // Without this token on Vercel, uploads cannot persist (no local disk)
       enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-      // Keep the `prefix` column on Media so generateURL can tell media/ vs root blobs
-      alwaysInsertFields: true,
       collections: {
         // Recommended for client uploads — serves files from Blob URLs directly
         media: {
           disablePayloadAccessControl: true,
           prefix: 'media',
+          generateFileURL: ({ filename, prefix }) => generateBlobFileUrl({ filename, prefix }),
         },
       },
       token: process.env.BLOB_READ_WRITE_TOKEN,
