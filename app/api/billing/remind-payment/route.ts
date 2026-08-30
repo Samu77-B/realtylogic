@@ -71,12 +71,7 @@ export async function GET(request: Request) {
         where: {
           and: [
             {
-              not: {
-                or: [
-                  { subscriptionStatus: { equals: 'active' } },
-                  { subscriptionStatus: { equals: 'trialing' } },
-                ],
-              },
+              subscriptionStatus: { not_in: ['active', 'trialing'] },
             },
             {
               or: [
