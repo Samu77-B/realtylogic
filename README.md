@@ -56,10 +56,13 @@ Set these environment variables in the Vercel project (**Settings → Environmen
 | `RESEND_API_KEY` | From [Resend](https://resend.com) — required for enquiry emails |
 | `ENQUIRY_TO_EMAIL` | Office inbox; defaults to `contact@realtylogic.co.uk` |
 | `ENQUIRY_FROM_EMAIL` | Must use verified domain, e.g. `Realty Logic <contact@realtylogic.co.uk>` |
+| `CRON_SECRET` | Random string; Vercel Cron sends it as `Authorization: Bearer` to `/api/billing/remind-payment` (weekly unpaid-account reminder) |
 
 **Photo uploads on Vercel:** Add **Blob storage** to the Vercel project (**Storage → Create → Blob**). Vercel sets `BLOB_READ_WRITE_TOKEN` automatically. Without this token, image uploads fail on production (serverless has no persistent disk). Payload uses `@payloadcms/storage-vercel-blob` with client-side uploads for files up to 30MB.
 
 **Enquiry forms:** Contact and “Arrange a viewing” post to `/api/enquiry`, save to **Admin → Enquiries**, email the office, and send an auto-reply to the enquirer when `RESEND_API_KEY` is set.
+
+**Billing reminders:** A Vercel Cron runs each Monday at 08:00 UTC (`/api/billing/remind-payment`) and emails CMS users who are not on an `active` or `trialing` subscription. Set `CRON_SECRET` and `RESEND_API_KEY`. After deploying, add the `billing_reminder_sent_at` column if needed: `npx tsx scripts/add-user-billing-columns.ts`.
 
 After adding Blob, redeploy the project, then upload again in **Admin → Media** (or on a property’s Main Image field).
 

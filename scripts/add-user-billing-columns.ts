@@ -45,6 +45,7 @@ async function main() {
     ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id varchar;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status enum_users_subscription_status DEFAULT 'none';
     ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_current_period_end timestamp(3) with time zone;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS billing_reminder_sent_at timestamp(3) with time zone;
 
     DO $$ BEGIN
       ALTER TABLE users

@@ -168,6 +168,10 @@ export interface User {
    * Current billing period end
    */
   subscriptionCurrentPeriodEnd?: string | null;
+  /**
+   * Last weekly “set up payment” reminder email
+   */
+  billingReminderSentAt?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -512,6 +516,7 @@ export interface UsersSelect<T extends boolean = true> {
   stripeSubscriptionId?: T;
   subscriptionStatus?: T;
   subscriptionCurrentPeriodEnd?: T;
+  billingReminderSentAt?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

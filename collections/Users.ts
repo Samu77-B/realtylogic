@@ -113,5 +113,20 @@ export const Users: CollectionConfig = {
         description: 'Current billing period end',
       },
     },
+    {
+      name: 'billingReminderSentAt',
+      type: 'date',
+      access: {
+        create: billingWriteLocked,
+        update: billingWriteLocked,
+      },
+      admin: {
+        readOnly: true,
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+        description: 'Last weekly “set up payment” reminder email',
+      },
+    },
   ],
 }
