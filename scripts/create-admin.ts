@@ -43,7 +43,7 @@ async function main() {
 
   if (existing.rows.length > 0) {
     await client.query(
-      `UPDATE users SET hash = $1, salt = $2, updated_at = NOW() WHERE id = $3`,
+      `UPDATE users SET hash = $1, salt = $2, login_attempts = 0, lock_until = NULL, updated_at = NOW() WHERE id = $3`,
       [hash, salt, existing.rows[0].id],
     )
     console.log(`Updated password for existing admin: ${email}`)

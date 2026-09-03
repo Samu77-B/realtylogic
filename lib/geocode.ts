@@ -23,7 +23,6 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
       'User-Agent': 'RealtyLogicUK/1.0 (property listings; contact@realtylogic.co.uk)',
       Accept: 'application/json',
     },
-    next: { revalidate: 86400 },
   })
 
   if (!res.ok) return null

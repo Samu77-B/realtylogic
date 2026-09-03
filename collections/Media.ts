@@ -1,5 +1,5 @@
-import type { CollectionAfterReadHook, CollectionConfig } from 'payload'
-import { getMediaUrl } from '@/lib/media/getMediaUrl'
+import type { CollectionAfterReadHook, CollectionBeforeChangeHook, CollectionConfig } from 'payload'
+import { blobUrlWithMediaFolder, getMediaUrl } from '@/lib/media/getMediaUrl'
 
 /**
  * Property photos are NOT baked with a watermark anymore.
@@ -29,6 +29,27 @@ export const Media: CollectionConfig = {
         }
         return doc
       }) as CollectionAfterReadHook,
+    ],
+    beforeChange: [
+      (({ data, originalDoc, operation }) => {
+        if (!data) return data
+
+        const fileChanged =
+          operation === 'create' ||
+          (typeof data.filename === 'string' && data.filename !== originalDoc?.filename) ||
+          (typeof data.url === 'string' && data.url !== originalDoc?.url)
+
+        // Client uploads always go under the plugin prefix `media/`. Replacing a
+        // photo on an old root-prefix row used to keep prefix '' and write a 404 URL.
+        if (fileChanged) {
+          data.prefix = 'media'
+          if (typeof data.url === 'string' && data.url.trim()) {
+            data.url = blobUrlWithMediaFolder(data.url)
+          }
+        }
+
+        return data
+      }) as CollectionBeforeChangeHook,
     ],
     beforeValidate: [
       ({ data }) => {

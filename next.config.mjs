@@ -2,6 +2,21 @@ import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Payload admin save/create runs as Next.js Server Actions.
+  // If Origin (www / vercel.app) does not match Host (x-forwarded-host),
+  // the browser shows a generic "Failed to fetch" with no API error.
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        'localhost:3000',
+        '127.0.0.1:3000',
+        'realtylogic.co.uk',
+        'www.realtylogic.co.uk',
+        'realtylogic.vercel.app',
+      ],
+      bodySizeLimit: '8mb',
+    },
+  },
   images: {
     remotePatterns: [
       {

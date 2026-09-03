@@ -1,7 +1,19 @@
-import type { CollectionConfig, FieldAccess } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig, FieldAccess } from 'payload'
+import { isSuperAdmin } from '@/lib/users/access'
 
 /** Billing fields are set only by Stripe webhooks / checkout (overrideAccess). */
 const billingWriteLocked: FieldAccess = () => false
+
+const clearLockoutOnPasswordReset: CollectionBeforeChangeHook = ({ data, originalDoc, req }) => {
+  if (!data?.password || !originalDoc?.id || !req.user) return data
+  if (!isSuperAdmin(req.user) || String(originalDoc.id) === String(req.user.id)) return data
+
+  return {
+    ...data,
+    loginAttempts: 0,
+    lockUntil: null,
+  }
+}
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -17,9 +29,16 @@ export const Users: CollectionConfig = {
   access: {
     read: ({ req: { user } }) => Boolean(user),
     create: ({ req: { user } }) => Boolean(user),
-    // Staff can edit their own profile; billing fields are locked separately
-    update: ({ req: { user } }) => (user ? { id: { equals: user.id } } : false),
+    // Super admin can edit any user; others only their own profile
+    update: ({ req: { user } }) => {
+      if (!user) return false
+      if (isSuperAdmin(user)) return true
+      return { id: { equals: user.id } }
+    },
     delete: ({ req: { user } }) => Boolean(user),
+  },
+  hooks: {
+    beforeChange: [clearLockoutOnPasswordReset],
   },
   fields: [
     {

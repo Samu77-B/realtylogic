@@ -1,13 +1,29 @@
 /**
  * Resolve a public URL for a Payload Media doc.
  *
- * Two layouts exist in this project:
- * - Imported Webflow photos: blob path `media/<file>`, DB `prefix = 'media'`
- * - Admin / client uploads: blob path `/<file>` at the store root, `prefix` empty
+ * Two layouts exist:
+ * - Most photos (imports + new admin uploads): blob path `media/<file>`
+ * - Early admin uploads: blob path `/<file>` at the store root (`prefix` empty)
  *
- * Payload's Vercel Blob adapter rebuilds `url` from filename and can drop `media/`.
- * Only put that segment back when the file was actually stored under `media/`.
+ * Replacing a photo on an old (root) media row uploads into `media/` but Payload
+ * may keep `prefix: ''` and write a root URL — that 404s in the crop/preview UI.
  */
+const BLOB_HOST = /\.public\.blob\.vercel-storage\.com/i
+
+export function blobUrlWithMediaFolder(url: string): string {
+  const trimmed = url.trim()
+  if (!BLOB_HOST.test(trimmed)) return trimmed
+  if (/\/media\//i.test(trimmed)) return trimmed
+  return trimmed.replace(
+    /^(https:\/\/[^/]+\.public\.blob\.vercel-storage\.com)\//i,
+    '$1/media/',
+  )
+}
+
+function filenameLooksLikeClientUpload(filename?: string | null): boolean {
+  return typeof filename === 'string' && /[\s()]/.test(filename)
+}
+
 export function getMediaUrl(item: unknown): string | null {
   if (typeof item !== 'object' || item === null) return null
 
@@ -17,17 +33,10 @@ export function getMediaUrl(item: unknown): string | null {
   if (!url) return null
 
   const prefix = typeof media.prefix === 'string' ? media.prefix.replace(/^\/|\/$/g, '') : ''
-  const storedUnderMedia = prefix === 'media'
+  const storedUnderMedia = prefix === 'media' || filenameLooksLikeClientUpload(media.filename)
 
-  if (
-    storedUnderMedia &&
-    /\.blob\.vercel-storage\.com\//i.test(url) &&
-    !/\.blob\.vercel-storage\.com\/media\//i.test(url)
-  ) {
-    url = url.replace(
-      /^(https:\/\/[^/]+\.public\.blob\.vercel-storage\.com)\//i,
-      '$1/media/',
-    )
+  if (storedUnderMedia && BLOB_HOST.test(url) && !/\/media\//i.test(url)) {
+    url = blobUrlWithMediaFolder(url)
   }
 
   return url

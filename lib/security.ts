@@ -37,6 +37,7 @@ export function getAllowedOrigins(): string[] {
     'http://127.0.0.1:3000',
     'https://realtylogic.co.uk',
     'https://www.realtylogic.co.uk',
+    'https://realtylogic.vercel.app',
   ])
 
   const fromEnv = [
@@ -48,11 +49,14 @@ export function getAllowedOrigins(): string[] {
     if (trimmed) origins.add(trimmed)
   }
 
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    origins.add(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
-  }
-  if (process.env.VERCEL_URL) {
-    origins.add(`https://${process.env.VERCEL_URL}`)
+  const vercelHosts = [
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+  ]
+  for (const host of vercelHosts) {
+    const trimmed = host?.trim().replace(/^https?:\/\//, '').replace(/\/$/, '')
+    if (trimmed) origins.add(`https://${trimmed}`)
   }
 
   return [...origins]
