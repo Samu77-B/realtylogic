@@ -246,16 +246,6 @@ export default async function PropertyRentPage({ params }: Props) {
                   </div>
                 )}
 
-                {/* Nearby - placeholder */}
-                <div className="mt-8">
-                  <h2 className="text-xl font-semibold text-gray-900">Nearby</h2>
-                  <div className="mt-4 space-y-2 text-gray-600">
-                    <p>Schools: St Paul&apos;s Cathedral School 0.5 miles</p>
-                    <p>Transport: Bank Underground Station 0.3 miles</p>
-                    <p>Leisure: London Bridge 0.7 miles</p>
-                  </div>
-                </div>
-
                 {/* Contact Agent */}
                 <div className="mt-8 border-t border-gray-200 pt-8">
                   <h2 className="text-xl font-semibold text-gray-900">Contact Agent</h2>

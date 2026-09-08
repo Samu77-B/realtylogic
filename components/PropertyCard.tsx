@@ -60,7 +60,7 @@ export function PropertyCard({
             className={`absolute right-2 top-2 rounded-md px-2 py-1 text-xs font-medium uppercase tracking-wide ${
               rentStatusBadge === 'Rent Agreed'
                 ? 'bg-[var(--color)] text-white'
-                : 'bg-gray-600 text-white'
+                : 'bg-[var(--available)] text-white'
             }`}
           >
             {rentStatusBadge}
