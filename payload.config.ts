@@ -38,6 +38,8 @@ export default buildConfig({
     components: {
       // Shown in the top-right header, next to the profile avatar
       actions: ['@/app/(payload)/admin/components/YourAccountLink#YourAccountLink'],
+      // Payment reminder popup for Naz when subscription is not active
+      providers: ['@/app/(payload)/admin/components/BillingSetupReminder#BillingSetupReminder'],
       graphics: {
         Logo: '@/app/(payload)/admin/graphics/Logo#Logo',
         Icon: '@/app/(payload)/admin/graphics/Icon#Icon',
