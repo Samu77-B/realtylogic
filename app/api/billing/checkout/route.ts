@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
 import { getAdminUser } from '@/lib/realty-ai/auth'
-import { getAppBaseUrl, getStripe, getStripePriceId, parseBillingPlan } from '@/lib/stripe'
+import {
+  getAppBaseUrl,
+  getStripe,
+  getStripePriceId,
+  parseBillingPlan,
+  publicBillingError,
+} from '@/lib/stripe'
 import { jsonError } from '@/lib/security'
 
 export async function POST(request: Request) {
@@ -16,7 +22,7 @@ export async function POST(request: Request) {
     const plan = parseBillingPlan(body.plan)
     const stripe = getStripe()
     const priceId = getStripePriceId(plan)
-    const baseUrl = getAppBaseUrl()
+    const baseUrl = getAppBaseUrl().replace(/\/$/, '')
 
     let customerId = user.stripeCustomerId || undefined
 
@@ -29,14 +35,20 @@ export async function POST(request: Request) {
         },
       })
       customerId = customer.id
-      await payload.update({
-        collection: 'users',
-        id: user.id,
-        data: {
-          stripeCustomerId: customerId,
-        },
-        overrideAccess: true,
-      })
+
+      try {
+        await payload.update({
+          collection: 'users',
+          id: user.id,
+          data: {
+            stripeCustomerId: customerId,
+          },
+          overrideAccess: true,
+        })
+      } catch (updateErr) {
+        // Customer exists in Stripe — still allow checkout even if CMS save failed.
+        console.error('[billing/checkout] Could not save stripeCustomerId on user', user.id, updateErr)
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -64,6 +76,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: session.url })
   } catch (err) {
-    return jsonError(500, 'Checkout failed', err)
+    const message = publicBillingError(err)
+    return jsonError(500, message, err)
   }
 }

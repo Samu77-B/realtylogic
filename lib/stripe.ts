@@ -45,3 +45,34 @@ export function getAppBaseUrl(): string {
     'http://localhost:3000'
   )
 }
+
+/** User-safe message for admin checkout failures (details still logged server-side). */
+export function publicBillingError(err: unknown): string {
+  if (err instanceof Error) {
+    if (err.message.includes('STRIPE_SECRET_KEY')) {
+      return 'Stripe is not configured on the server (missing STRIPE_SECRET_KEY).'
+    }
+    if (err.message.includes('STRIPE_PRICE_ID_YEARLY')) {
+      return 'Yearly billing is not configured (missing STRIPE_PRICE_ID_YEARLY).'
+    }
+    if (err.message.includes('STRIPE_PRICE_ID')) {
+      return 'Monthly billing is not configured (missing STRIPE_PRICE_ID).'
+    }
+  }
+
+  if (err instanceof Stripe.errors.StripeAuthenticationError) {
+    if (err.code === 'api_key_expired') {
+      return 'Stripe secret key has expired — update STRIPE_SECRET_KEY in Vercel with a new key from the Stripe dashboard.'
+    }
+    return 'Stripe authentication failed — check STRIPE_SECRET_KEY on the server.'
+  }
+
+  if (err instanceof Stripe.errors.StripeError) {
+    if (err.code === 'resource_missing') {
+      return 'Stripe price ID not found — check STRIPE_PRICE_ID / STRIPE_PRICE_ID_YEARLY match the same Stripe account as STRIPE_SECRET_KEY.'
+    }
+    return err.message
+  }
+
+  return 'Checkout failed. Please try again or contact support.'
+}
