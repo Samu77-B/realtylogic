@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
+import { sendPaymentConfirmationEmail } from '@/lib/billing/paymentConfirmationEmail'
 import { getPayloadClient } from '@/lib/payload'
 import { getStripe } from '@/lib/stripe'
 import type { User } from '@/payload-types'
@@ -144,6 +145,18 @@ export async function POST(request: Request) {
             subscriptionCurrentPeriodEnd: periodEndIso(subscription),
           },
           overrideAccess: true,
+        })
+
+        const userDoc = await payload.findByID({
+          collection: 'users',
+          id: userId,
+          overrideAccess: true,
+        })
+
+        await sendPaymentConfirmationEmail({
+          user: userDoc as User,
+          session,
+          subscription,
         })
         break
       }
