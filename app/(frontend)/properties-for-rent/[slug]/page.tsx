@@ -218,7 +218,7 @@ export default async function PropertyRentPage({ params }: Props) {
                     )}
                     {property.holdingFee && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Holding fee</span>
+                        <span className="text-gray-600">Deposit</span>
                         <span className="font-medium">{property.holdingFee}</span>
                       </div>
                     )}
