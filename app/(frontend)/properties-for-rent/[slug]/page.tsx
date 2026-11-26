@@ -210,12 +210,6 @@ export default async function PropertyRentPage({ params }: Props) {
                       <span className="text-gray-600">Rent</span>
                       <span className="font-medium">{property.monthlyRent}</span>
                     </div>
-                    {property.deposit && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Deposit</span>
-                        <span className="font-medium">{property.deposit}</span>
-                      </div>
-                    )}
                     {property.holdingFee && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Deposit</span>

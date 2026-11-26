@@ -65,7 +65,8 @@ export const PropertiesRent: CollectionConfig = {
       name: 'deposit',
       type: 'text',
       admin: {
-        description: 'e.g. £5,000',
+        hidden: true,
+        description: 'Unused — deposit is shown from Holding fee on the public site',
       },
     },
     {
